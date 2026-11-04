@@ -24,7 +24,7 @@ glasses and it stops at 15 alarms.
   by other alarms are offered as one-tap choices. Any alarm can be duplicated.
 - Standalone: no phone, no account, no store, no network.
 
-## Status: builds, not yet run on a watch
+## Status: builds and runs on the watch
 
 Verified so far:
 
@@ -36,8 +36,10 @@ Verified so far:
 - Every library version in `gradle/libs.versions.toml` was checked against the official release
   pages on 4 Nov 2026.
 
-Not verified: behaviour on the watch itself. Ringing, wake-up, notification actions and the Wear
-input method all need a real device, so the first install is the real test. If your Android Studio
+Verified on the watch (Galaxy Watch5, One UI 8 Watch, Wear OS 6): the alarm fires on time, the
+watch vibrates, the screen wakes, the ringing screen opens by itself with the overlay grant below,
+the scaled text is readable, and snooze works. Not yet exercised: sound, the every-N-days rule and
+simultaneous alarms. If your Android Studio
 ships a different AGP, let the **AGP Upgrade Assistant** adjust `gradle/libs.versions.toml`; keep
 the `kotlin` entry equal to the Kotlin Gradle plugin version that AGP release bundles (readable from
 the AGP POM on maven.google.com).
@@ -126,8 +128,8 @@ adb shell appops set com.akvalentine.bigalarm SYSTEM_ALERT_WINDOW allow
 ```
 
 The Settings screen in the app reports whether this is on. Revoke with `... SYSTEM_ALERT_WINDOW
-default`. This is standard Android behaviour but it has not been confirmed on One UI 8 Watch, so
-treat it as an experiment.
+default`. Confirmed working on a Galaxy Watch5 running One UI 8 Watch: with the grant in place the
+ringing screen opens by itself when the alarm fires.
 
 ## How it works
 
@@ -156,7 +158,7 @@ permissions, and the optional `SYSTEM_ALERT_WINDOW`. No network permission.
 
 ## Known limitations and ideas
 
-- The ringing screen only opens by itself with the adb step above.
+- The ringing screen only opens by itself after the one-time adb step above.
 - No phone companion yet. A phone app for editing alarms with a real keyboard would use the Wear
   Data Layer API; the standalone design leaves room for it.
 - No tile or watch-face complication yet. A tile showing the next alarm would be a natural addition.
