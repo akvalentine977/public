@@ -24,22 +24,23 @@ glasses and it stops at 15 alarms.
   by other alarms are offered as one-tap choices. Any alarm can be duplicated.
 - Standalone: no phone, no account, no store, no network.
 
-## Status: not yet compiled
+## Status: builds, not yet run on a watch
 
-This project was written in a cloud sandbox that cannot reach Google's Maven repository
-(`dl.google.com`), so the Android build itself has **not** been run. What has been verified:
+Verified so far:
 
-- The pure-Kotlin core (`core/` package: model, schedule computation, formatting) compiles with
-  Kotlin 2.4.21 and all 20 unit tests pass.
+- `./gradlew :app:assembleDebug` succeeds with AGP 9.5.0, Gradle 9.6.0, the Kotlin 2.2.10 that AGP
+  bundles, KSP 2.3.13 and compileSdk 37, with no Kotlin warnings. It produces
+  `app/build/outputs/apk/debug/app-debug.apk`.
+- The pure-Kotlin core (`core/` package: model, schedule computation, formatting) has 20 unit tests,
+  all passing via `./gradlew :app:testDebugUnitTest`.
 - Every library version in `gradle/libs.versions.toml` was checked against the official release
   pages on 4 Nov 2026.
-- Every Compose for Wear OS Material 3 composable used was checked against the library source for
-  parameter names and defaults.
 
-Expect the first Android Studio build to surface a handful of small errors (a renamed parameter, a
-missing import). They should be quick to fix. If the Gradle plugin or Kotlin versions do not match
-what your Android Studio ships, let the **AGP Upgrade Assistant** adjust them, or edit
-`gradle/libs.versions.toml`.
+Not verified: behaviour on the watch itself. Ringing, wake-up, notification actions and the Wear
+input method all need a real device, so the first install is the real test. If your Android Studio
+ships a different AGP, let the **AGP Upgrade Assistant** adjust `gradle/libs.versions.toml`; keep
+the `kotlin` entry equal to the Kotlin Gradle plugin version that AGP release bundles (readable from
+the AGP POM on maven.google.com).
 
 ## Requirements (Linux)
 
@@ -140,6 +141,9 @@ Room (alarms.db) ◄──► AlarmRepository ◄──► AlarmActions ──�
 ```
 
 - `core/` is pure Kotlin: `Alarm`, `Repeat`, `Schedule.nextTrigger()`, `Format`. Unit-tested.
+- Build: AGP 9 built-in Kotlin (no `kotlin-android` plugin), Compose compiler plugin matched to the
+  bundled Kotlin version, KSP 2.3.x for Room (older KSP releases are incompatible with built-in
+  Kotlin's source-set rules).
 - `data/` is Room plus a SharedPreferences-backed `Settings`.
 - `alarm/` is scheduling and ringing. Every write goes through `AlarmActions`, which re-registers
   all system alarms afterwards, so the database and AlarmManager never drift apart.
