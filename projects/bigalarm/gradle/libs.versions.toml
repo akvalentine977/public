@@ -1,8 +1,10 @@
 [versions]
-# Build tooling
+# Build tooling. AGP 9 has built-in Kotlin and bundles a Kotlin Gradle plugin version;
+# keep "kotlin" (used by the Compose compiler plugin) and "ksp" aligned with what that AGP
+# version bundles, which you can read from its POM on maven.google.com.
 agp = "9.5.0"
-kotlin = "2.4.21"
-ksp = "2.3.13"
+kotlin = "2.2.10"
+ksp = "2.2.10-2.0.2"
 
 # AndroidX
 composeBom = "2026.09.00"

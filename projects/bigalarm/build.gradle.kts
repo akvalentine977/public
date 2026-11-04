@@ -1,16 +1,6 @@
-// AGP 9 has built-in Kotlin support and bundles its own Kotlin Gradle plugin.
-// The Compose compiler plugin version must match the Kotlin compiler version,
-// so we pin KGP explicitly (documented approach: "Upgrade to a higher KGP version").
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
-    }
-}
-
+// AGP 9 has built-in Kotlin support, so no org.jetbrains.kotlin.android plugin is applied.
+// The Compose compiler plugin version in gradle/libs.versions.toml matches the Kotlin
+// Gradle plugin version that this AGP release bundles.
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.compose) apply false
