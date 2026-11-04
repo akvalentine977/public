@@ -1,6 +1,7 @@
 package com.akvalentine.bigalarm.data
 
 import android.content.Context
+import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -28,27 +29,27 @@ class Settings(context: Context) {
 
     fun setTextScale(scale: Float) {
         _textScale.value = scale
-        prefs.edit().putFloat(KEY_TEXT_SCALE, scale).apply()
+        prefs.edit { putFloat(KEY_TEXT_SCALE, scale) }
     }
 
     fun setSnoozeMinutes(minutes: Int) {
         _snoozeMinutes.value = minutes
-        prefs.edit().putInt(KEY_SNOOZE, minutes).apply()
+        prefs.edit { putInt(KEY_SNOOZE, minutes) }
     }
 
     fun setAutoSilenceMinutes(minutes: Int) {
         _autoSilenceMinutes.value = minutes
-        prefs.edit().putInt(KEY_AUTO_SILENCE, minutes).apply()
+        prefs.edit { putInt(KEY_AUTO_SILENCE, minutes) }
     }
 
     fun setDefaultVibrate(value: Boolean) {
         _defaultVibrate.value = value
-        prefs.edit().putBoolean(KEY_DEFAULT_VIBRATE, value).apply()
+        prefs.edit { putBoolean(KEY_DEFAULT_VIBRATE, value) }
     }
 
     fun setDefaultSound(value: Boolean) {
         _defaultSound.value = value
-        prefs.edit().putBoolean(KEY_DEFAULT_SOUND, value).apply()
+        prefs.edit { putBoolean(KEY_DEFAULT_SOUND, value) }
     }
 
     companion object {

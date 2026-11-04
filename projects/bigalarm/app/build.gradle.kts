@@ -10,8 +10,9 @@ android {
 
     defaultConfig {
         applicationId = "com.akvalentine.bigalarm"
-        // Wear OS 4 = API 33. Galaxy Watch5 on One UI 8 Watch is Wear OS 6 = API 36.
-        minSdk = 33
+        // Wear OS 5 = API 34 (needed for the systemExempted foreground service type).
+        // Galaxy Watch5 on One UI 8 Watch is Wear OS 6 = API 36.
+        minSdk = 34
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
@@ -24,6 +25,11 @@ android {
 
     buildFeatures {
         compose = true
+    }
+
+    lint {
+        // The Kotlin/Compose-compiler version is deliberately pinned to what AGP bundles.
+        disable += "NewerVersionAvailable"
     }
 }
 
@@ -39,6 +45,7 @@ dependencies {
     implementation(libs.wear.compose.navigation)
     implementation(libs.wear.input)
 
+    implementation(libs.core.ktx)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
 

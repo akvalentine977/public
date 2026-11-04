@@ -1,7 +1,7 @@
 # Big Alarm
 
 A standalone alarm app for the Samsung Galaxy Watch5 (SM-R910, One UI 8 Watch / Wear OS 6) and any
-other Wear OS 4+ watch. Built because the stock alarm app's names are too small to read without
+other Wear OS 5+ watch. Built because the stock alarm app's names are too small to read without
 glasses and it stops at 15 alarms.
 
 ## What it does

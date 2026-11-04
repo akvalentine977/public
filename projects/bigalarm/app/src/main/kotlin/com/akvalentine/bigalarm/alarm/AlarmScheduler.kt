@@ -1,6 +1,7 @@
 package com.akvalentine.bigalarm.alarm
 
 import android.app.AlarmManager
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -40,6 +41,8 @@ class AlarmScheduler(private val context: Context, private val repository: Alarm
         alarmManager.cancel(fireIntent(alarmId))
     }
 
+    // Lint only knows SCHEDULE_EXACT_ALARM; USE_EXACT_ALARM (declared) grants the same capability on API 33+.
+    @SuppressLint("MissingPermission")
     private fun set(alarmId: Long, at: ZonedDateTime) {
         val triggerMillis = at.toInstant().toEpochMilli()
         val operation = fireIntent(alarmId)

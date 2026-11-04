@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,7 +38,6 @@ import com.akvalentine.bigalarm.core.RepeatType
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.util.Locale
 
 private const val REMOTE_INPUT_KEY = "alarm_name"
 
@@ -219,7 +219,7 @@ fun WeekdaysScreen(onDone: () -> Unit) {
         return
     }
     val listState = rememberTransformingLazyColumnState()
-    val locale = Locale.getDefault()
+    val locale = LocalConfiguration.current.locales[0]
 
     ScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {

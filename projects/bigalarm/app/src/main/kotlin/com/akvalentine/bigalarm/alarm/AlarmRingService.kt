@@ -1,5 +1,6 @@
 package com.akvalentine.bigalarm.alarm
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -165,9 +166,10 @@ class AlarmRingService : Service() {
         }
     }
 
+    // NEW_TASK is required when starting an activity from a service; the activity is excluded from recents.
+    @SuppressLint("WearRecents")
     private fun tryOpenRingingScreen() {
-        val intent = Intent(this, AlarmRingActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val intent = Intent(this, AlarmRingActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         // Silently blocked by the system unless the overlay permission was granted via adb.
         runCatching { startActivity(intent) }.onFailure { Log.w(TAG, "Could not open ringing screen", it) }
     }
