@@ -73,7 +73,34 @@ Run the core unit tests:
 ./gradlew :app:testDebugUnitTest
 ```
 
-The debug APK ends up at `app/build/outputs/apk/debug/app-debug.apk`.
+The debug APK ends up at `app/build/outputs/apk/debug/app-debug.apk`. Debug builds are fine for a
+first look but noticeably sluggish on the watch; use a release build for daily wear.
+
+## Release build (recommended for daily use)
+
+Release builds are shrunk and optimised by R8 and carry the Compose baseline profiles, so the UI is
+far smoother and the APK is about 2.5 MB instead of 45 MB. They need a signing key that stays the
+same across builds, otherwise the watch refuses updates. One-time setup, in the project folder:
+
+```bash
+keytool -genkeypair -v -keystore bigalarm.jks -alias bigalarm -keyalg RSA -keysize 2048 -validity 10000
+cp keystore.properties.example keystore.properties
+```
+
+Put the two passwords you chose into `keystore.properties`. Both files are git-ignored; back the
+`.jks` up somewhere safe. Without `keystore.properties` the release build falls back to the debug
+key, which works for a personal sideload but changes whenever the machine does.
+
+Build, or build and install on a connected watch:
+
+```bash
+./gradlew :app:assembleRelease
+./gradlew :app:installRelease
+```
+
+Switching from a build signed with a different key (for example a debug build) requires
+`adb uninstall com.akvalentine.bigalarm` first, which also clears the alarms and the overlay grant
+described below. After that, every update is just `installRelease` and alarms are kept.
 
 ## Put it on the watch
 
