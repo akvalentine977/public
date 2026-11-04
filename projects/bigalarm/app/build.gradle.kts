@@ -26,11 +26,6 @@ android {
     buildFeatures {
         compose = true
     }
-
-    lint {
-        // The Kotlin/Compose-compiler version is deliberately pinned to what AGP bundles.
-        disable += "NewerVersionAvailable"
-    }
 }
 
 dependencies {
