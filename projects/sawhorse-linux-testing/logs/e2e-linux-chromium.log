@@ -1,0 +1,224 @@
+[WebServer] [plugin builtin:vite-reporter] 
+[WebServer] (!) Some chunks are larger than 1024 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+
+Running 145 tests using 3 workers
+
+[1/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 1-20
+[2/145] [chromium] › e2e/containment.spec.ts:48:1 › a kernel panic during an import leaves the open document intact: a fresh kernel rebuilds it and the app says so
+[3/145] [chromium] › e2e/bookshelf.spec.ts:65:1 › the bookshelf with dados, in under five minutes of steps
+[4/145] [chromium] › e2e/containment.spec.ts:101:1 › a plugin that hangs or floods the app is stopped; another plugin and the document are untouched
+[5/145] [chromium] › e2e/containment.spec.ts:168:1 › an autosave that cannot be read, or is too large, never blocks the start: it is set aside and offered for discarding
+[6/145] [chromium] › e2e/csp.spec.ts:11:1 › the app works under its content security policy without a single violation
+[7/145] [chromium] › e2e/curves.spec.ts:80:1 › a circle is one curve: select, move, scale, copy, split, erase, explode; a pushed polygon's rim, its Centre; undo, redo, .shz
+[8/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 21-40
+[9/145] [chromium] › e2e/curves.spec.ts:267:1 › a DXF's circles and arc, and a SketchUp file's circle, arc and welded curve, come in as curves
+[10/145] [chromium] › e2e/curves.spec.ts:341:1 › lane 23b: the Eraser across a circle or a polygon, two circles moved, a pulled circle's front elevation
+[11/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 41-60
+[chromium] › e2e/bookshelf.spec.ts:65:1 › the bookshelf with dados, in under five minutes of steps
+BOOKSHELF scripted: 43.5 s, volume 2761.03125 in³, refusals {}, tilted-plane boolean refusals 0
+
+[12/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 61-80
+[13/145] [chromium] › e2e/cutlist.spec.ts:25:1 › the bookshelf's cut list: rows, totals, grain and stock, hidden parts, selection, CSV, PDF, labels and print
+[14/145] [chromium] › e2e/draw.spec.ts:32:1 › Line chains close into a region; typed lengths are exact
+[15/145] [chromium] › e2e/draw.spec.ts:57:1 › Rect across a board's face cuts a dado strip; push it in
+[16/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 81-100
+[17/145] [chromium] › e2e/draw.spec.ts:90:1 › Rotated rectangle, circle and polygon with typed counts, arc with a typed radius
+[18/145] [chromium] › e2e/draw.spec.ts:139:1 › a line across a solid's face from edge to edge splits it; a dangling line waits
+[19/145] [chromium] › e2e/edges.spec.ts:44:1 › the Eraser softens, hides and unsoftens edges, as its hint says, one undo step each
+[20/145] [chromium] › e2e/edges.spec.ts:84:1 › Soften selected in the Styles pane rounds a 24-sided cylinder; soft edges can be shown dashed
+[21/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 101-120
+[22/145] [chromium] › e2e/edges.spec.ts:107:1 › a softened cylinder renders like its golden image
+[23/145] [chromium] › e2e/files.spec.ts:62:1 › the File menu: open, save, import, units and every export
+[24/145] [chromium] › e2e/files.spec.ts:87:1 › import an STL, export STL and 3MF, re-import the STL
+[25/145] [chromium] › e2e/files.spec.ts:113:1 › an open mesh comes in visible, is named in the HUD, and STL export refuses it by name
+[26/145] [chromium] › e2e/files.spec.ts:129:1 › save as .shz, start a new model, open the file again
+[27/145] [chromium] › e2e/cutlist.spec.ts:164:1 › the cut list fits the 300 px pane at every rounding, unit and grain, with long names
+[28/145] [chromium] › e2e/files.spec.ts:149:1 › drag and drop: an SVG becomes sketch regions on the ground
+[29/145] [chromium] › e2e/files.spec.ts:165:1 › a SketchUp file imports through openskp: the named Top and the Leg's instances as components
+[30/145] [chromium] › e2e/follow.spec.ts:9:1 › a moulding routed round the top of a box
+[31/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 121-140
+[32/145] [chromium] › e2e/grid.spec.ts:33:1 › View > Grid hides the grid; the Styles pane agrees; saved and reopened it stays hidden; on again restores it
+[33/145] [chromium] › e2e/grid.spec.ts:121:1 › issue #6: a scene saved with the default style brings the grid back, also after save and reopen
+[34/145] [chromium] › e2e/cutlist.spec.ts:236:1 › the cut list of an empty model says how parts come about
+[35/145] [chromium] › e2e/cutlist.spec.ts:248:1 › long part names and the reason a part is not counted read in full; the panel widens
+[36/145] [chromium] › e2e/grid.spec.ts:191:1 › scenes and the grid: updating a scene rewrites its grid; View > Grid works between scenes
+[37/145] [chromium] › e2e/groups.spec.ts:18:1 › Ctrl+G groups; a click selects the group; double-click opens it, Esc closes it; undo returns inside
+[38/145] [chromium] › e2e/grid.spec.ts:235:1 › clicking the active scene tab brings its grid back; Ctrl+Z restores the grid set by hand
+[39/145] [chromium] › e2e/inference.spec.ts:30:1 › our inference colours and tooltips on a box
+[40/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 141-160
+[41/145] [chromium] › e2e/groups.spec.ts:62:1 › a component's copies are instances: an edit inside one changes them all; Make Unique forks
+[42/145] [chromium] › e2e/inference.spec.ts:60:1 › axis inference, arrow-key locks, and exact values from inferred clicks
+[43/145] [chromium] › e2e/materials.spec.ts:18:1 › paint a box from the library, sample it, position its texture, switch styles and the sun, keep them in a scene
+[44/145] [chromium] › e2e/groups.spec.ts:110:1 › tags hide and show; scenes save the view and the tags; the Outliner's eye and lock
+[45/145] [chromium] › e2e/groups.spec.ts:168:1 › hiding what is selected drops it from the selection, so Delete cannot erase it; renaming starts with the name selected
+[46/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 161-180
+[47/145] [chromium] › e2e/move.spec.ts:9:1 › click, move, click with a typed distance; then change it by typing again
+[48/145] [chromium] › e2e/materials.spec.ts:131:1 › a painted cabinet renders like its golden image
+[49/145] [chromium] › e2e/move.spec.ts:32:1 › press, drag and let go onto another solid's corner
+[50/145] [chromium] › e2e/navigation.spec.ts:42:1 › middle-drag orbits, Shift+middle-drag pans, the wheel zooms toward the cursor
+[51/145] [chromium] › e2e/navigation.spec.ts:94:1 › Shift+Z zooms to the model's extents; views and the projection toggle
+[52/145] [chromium] › e2e/move.spec.ts:56:1 › Ctrl copies; x3 makes an array; /2 divides it; copies are separate solids
+[53/145] [chromium] › e2e/navigation.spec.ts:147:1 › the ground grid follows the units, and sketch regions draw over it
+[54/145] [chromium] › e2e/nesting.spec.ts:83:1 › nesting the bookshelf: boards and a sheet, kerf, maxrects, ply, stock, and SVG / DXF / PDF with every part
+[55/145] [chromium] › e2e/move.spec.ts:86:1 › moving part of a solid: a face slides, a corner bends a face unless autofold is on
+[56/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 181-200
+[57/145] [chromium] › e2e/offset.spec.ts:8:1 › a face inward imprints (and pulls up into a tenon); outward makes a sketch
+[58/145] [chromium] › e2e/offset.spec.ts:35:1 › a sketch region inward stays in its sketch
+[59/145] [chromium] › e2e/offset.spec.ts:48:1 › a selected edge offsets across the face as a cut
+[60/145] [chromium] › e2e/orbit.spec.ts:83:1 › middle-drag orbits about the corner under the cursor, pinned to the pixel, with a marker; no lock at the poles; right-drag pans with it
+[chromium] › e2e/orbit.spec.ts:83:1 › middle-drag orbits about the corner under the cursor, pinned to the pixel, with a marker; no lock at the poles; right-drag pans with it
+[orbit] corner drift: across 0.000007 px, down 0.000001 px, net 0.000007 px
+
+[orbit] after 2000 px down: view 89.500 deg above the target; 300 px across then turned it 137.4 deg
+
+[orbit] right-drag pan 150 x 80 px: the grabbed point is 0.000000 px from the cursor; the corner moved (-150.000, 80.000) px
+
+[61/145] [chromium] › e2e/orbit.spec.ts:189:1 › orbiting from the Top view and in perspective keeps the pivot pinned too
+[62/145] [chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 201-203
+[63/145] [chromium] › e2e/plugins-hostile.spec.ts:103:1 › a hostile plugin from a session zip cannot exhaust the app: every attack is a typed refusal, the document and stores are unchanged, the app stays responsive
+[chromium] › e2e/corpus.spec.ts:96:5 › skp corpus › files 201-203
+[corpus] 203 files: 709 solids, 40 non-solid meshes; 20 compared with goldens, worst mean 0.0115
+
+[64/145] [chromium] › e2e/plugins-large.spec.ts:33:1 › a plugin package near its size limits is checked off the app's thread and then runs
+[65/145] [chromium] › e2e/plugins-hostile.spec.ts:188:1 › a ui-only plugin's tool never sees a solid id: pointer events over a solid carry no snap or pick from the model
+[66/145] [chromium] › e2e/plugins-hostile.spec.ts:238:1 › file.open without the person's click is refused with a typed error instead of hanging
+[67/145] [chromium] › e2e/plugins-model.spec.ts:66:1 › a plugin's batch is one named undo step, and its reads match the model
+[68/145] [chromium] › e2e/plugins-samples.spec.ts:45:1 › the samples are listed, disabled, with their permissions
+[69/145] [chromium] › e2e/plugins-samples.spec.ts:64:1 › cabinet generator: a 30 x 72 x 12 in cabinet with 3 shelves; the Outliner names the parts and the Cut list lists them
+[70/145] [chromium] › e2e/plugins-samples.spec.ts:110:1 › cabinet generator: Update replaces the selected cabinet in place
+[71/145] [chromium] › e2e/plugins-samples.spec.ts:127:1 › shelf pin holes: hover a face, see the column, click to drill it; one undo removes it
+[72/145] [chromium] › e2e/plugins-sandbox.spec.ts:100:1 › a plugin without model.write cannot change the model; without net it has no network; it has no DOM, no importScripts, no eval
+[73/145] [chromium] › e2e/plugins-ui.spec.ts:71:1 › install from .zip, enable, use every field, prompt and confirm, reload, disable, survive a reload, uninstall
+[74/145] [chromium] › e2e/plugins-samples.spec.ts:155:1 › model report: live counts that match the model, and an export as Markdown and CSV
+[75/145] [chromium] › e2e/plugins-sandbox.spec.ts:166:1 › code that would load from outside is refused before it runs
+[76/145] [chromium] › e2e/plugins-sandbox.spec.ts:194:1 › a plugin stuck in a loop is reported and stopped, and the app keeps working
+[77/145] [chromium] › e2e/plugins-samples.spec.ts:204:1 › a plugin claiming an enabled sample's id does not run on the sample's grant
+[78/145] [chromium] › e2e/private-fixtures.spec.ts:301:3 › private SketchUp fixtures (SAWHORSE_PRIVATE_FIXTURES) › box-slot-defective-current.skp: a defective model stays one amber mesh of 12 faces, its defects named
+[79/145] [chromium] › e2e/private-fixtures.spec.ts:389:3 › private SketchUp fixtures (SAWHORSE_PRIVATE_FIXTURES) › round-slab-leg-current.skp: a 24-sided slab with soft sides and the Leg component, 2 x 2 x 28 in the Cut list
+[80/145] [chromium] › e2e/private-fixtures.spec.ts:518:3 › private SketchUp fixtures (SAWHORSE_PRIVATE_FIXTURES) › blank-26-purged.skp: an empty model opens as an empty model in its own units
+[81/145] [chromium] › e2e/private-fixtures.spec.ts:579:3 › private SketchUp fixtures: furniture that is not solid (lane 15) › desk.skp: the desk is a part flagged not solid, sized from its bounds
+[82/145] [chromium] › e2e/private-fixtures.spec.ts:615:3 › private SketchUp fixtures: furniture that is not solid (lane 15) › benches.skp: loose faces are counted, then made into parts flagged not solid
+[83/145] [chromium] › e2e/private-fixtures.spec.ts:654:5 › private SketchUp fixtures: furniture that is not solid (lane 15) › coffee tables.skp: coffee table 6 is not a board (lane 20)
+[84/145] [chromium] › e2e/private-fixtures.spec.ts:654:5 › private SketchUp fixtures: furniture that is not solid (lane 15) › gondola_v20.skp: Agrupar#8 is not a board (lane 20)
+[85/145] [chromium] › e2e/private-fixtures.spec.ts:690:3 › private SketchUp fixtures: the Cut list reads in full (lane 20b) › gondola_v20.skp: the Cut list reads in full at 300, 360 and 600 px
+[86/145] [chromium] › e2e/push.spec.ts:40:1 › press on the top, drag up, let go: the preview follows and the release commits
+[87/145] [chromium] › e2e/plugins-ui.spec.ts:186:1 › a broken zip is refused with its reasons, and a session load does not survive a reload
+[88/145] [chromium] › e2e/render.spec.ts:32:1 › no render service, or one not answering: no chip, no Render pane, Settings says why (lane 15)
+[89/145] [chromium] › e2e/push.spec.ts:56:1 › click, move, click; typed distance mid-gesture; double-click repeats; Ctrl pulls a new face
+[90/145] [chromium] › e2e/render.spec.ts:55:1 › a catch-all server answering 200 with HTML is not the render service: no chip, no Render pane (lane 20)
+[91/145] [chromium] › e2e/render.spec.ts:85:1 › a service set: the app asks its health once at startup (lane 12c)
+[92/145] [chromium] › e2e/push.spec.ts:88:1 › pushing through goes the boolean path; refusals show typed in the status line
+[93/145] [chromium] › e2e/render.spec.ts:97:1 › set and answering, but the balance call fails: the chip shows a dash and Render explains, nothing is charged
+[94/145] [chromium] › e2e/render.spec.ts:110:1 › renders the current view: signed requests, 16-bit depth + edge + clay passes, one credit
+[95/145] [chromium] › e2e/rotate.spec.ts:9:1 › turn a board a quarter about its corner, then change the angle
+[96/145] [chromium] › e2e/render.spec.ts:161:1 › a credit pack opens checkout in a new window and the chip follows the payment
+[97/145] [chromium] › e2e/rotate.spec.ts:32:1 › Ctrl copies a turn; x3 makes a ring of four about a centre
+[98/145] [chromium] › e2e/plugins-sandbox.spec.ts:228:1 › a plugin that throws while loading did not start, and says why
+[99/145] [chromium] › e2e/rotate.spec.ts:63:1 › turn the top face about its front edge into a wedge; a twist is refused
+[100/145] [chromium] › e2e/scale.spec.ts:28:1 › a face grip with a typed factor, then an absolute size, then a mirror
+[101/145] [chromium] › e2e/plugins-sandbox.spec.ts:235:1 › a plugin without net cannot send the model out with a font load (the verifier's escape)
+[102/145] [chromium] › e2e/plugins-sandbox.spec.ts:262:1 › the second lock: a worker started from a blob: URL, as every plugin's is, runs under the page's policy
+[103/145] [chromium] › e2e/scale.spec.ts:59:1 › a tapered leg: the top face scaled about its centre
+[104/145] [chromium] › e2e/plugins-sandbox.spec.ts:300:1 › net reaches the listed origin only: another port on the same host is refused before any request
+[105/145] [chromium] › e2e/sections.spec.ts:34:1 › cut the bookshelf with a section plane, reverse it, switch the style, keep it in a scene, slice and export it
+[106/145] [chromium] › e2e/selection.spec.ts:48:1 › hover, click, Shift adds, Ctrl toggles, Esc clears
+[107/145] [chromium] › e2e/session.spec.ts:57:1 › unsaved work comes back after a reload
+[108/145] [chromium] › e2e/selection.spec.ts:80:1 › window selects what is inside, crossing selects what it touches; double-click selects the solid
+[109/145] [chromium] › e2e/session.spec.ts:81:1 › discarding forgets the unsaved work; ?autosave=0 never offers it
+[110/145] [chromium] › e2e/selection.spec.ts:113:1 › Delete erases through the kernel; structural edges are refused; Erase tool; Ctrl+A
+[111/145] [chromium] › e2e/sheets.spec.ts:65:1 › the sheet golden lays out on the canvas as the kernel draws it
+[112/145] [chromium] › e2e/sheets.spec.ts:85:1 › build a sheet of the bookshelf with every tool, edit it, undo, and save it as SVG
+[113/145] [chromium] › e2e/shell.spec.ts:18:1 › shell matches the approved mock's structure
+[114/145] [chromium] › e2e/session.spec.ts:98:1 › New clears the autosave: a model as it was started, saved or opened leaves nothing to restore
+[115/145] [chromium] › e2e/shell.spec.ts:40:1 › no render service configured: nothing asks for one, nothing logs a refused connection (lane 12c)
+[116/145] [chromium] › e2e/shell.spec.ts:56:1 › keyboard shortcuts switch tools
+[117/145] [chromium] › e2e/shell.spec.ts:92:1 › rect and push/pull edit the persistent document; Ctrl+Z / Ctrl+Y step through it
+[118/145] [chromium] › e2e/session.spec.ts:116:1 › solids are named by display number, never by raw id
+[119/145] [chromium] › e2e/sheets.spec.ts:196:1 › the sheet golden out as PDF (its dimension strings are text in it), DXF, PNG and print
+[120/145] [chromium] › e2e/sketch-move.spec.ts:41:1 › a circle moves by a typed distance and by inference, turns 45 degrees and copies; undo takes each back
+[121/145] [chromium] › e2e/session.spec.ts:145:1 › the rectangle preview and message say which way it went
+[122/145] [chromium] › e2e/sheets.spec.ts:250:1 › a dimension on the model follows it when the model changes; a click on it only selects
+[123/145] [chromium] › e2e/skp-ccby.spec.ts:37:3 › benches.skp: opens, and the Cut list lists its parts
+[chromium] › e2e/skp-ccby.spec.ts:37:3 › benches.skp: opens, and the Cut list lists its parts
+[skp-ccby] {"file":"benches.skp","title":"Imported benches.skp: 0 solids, 1 mesh that is not solid.","parts":3,"notSolid":3,"loose":0,"boardFeet":0,"names":["benches 1 x1*","benches 2 x1*","benches 3 x1*"]}
+
+[124/145] [chromium] › e2e/skp-ccby.spec.ts:37:3 › coffee tables.skp: opens, and the Cut list lists its parts
+[125/145] [chromium] › e2e/tape.spec.ts:29:1 › measure, place a guide from an edge, snap to its crossing, dimension, erase the guide
+[chromium] › e2e/skp-ccby.spec.ts:37:3 › coffee tables.skp: opens, and the Cut list lists its parts
+[skp-ccby] {"file":"coffee tables.skp","title":"Imported coffee tables.skp: 5 solids, 10 meshes that are not solid, 10 component instances (10 components).","parts":10,"notSolid":9,"loose":0,"boardFeet":0,"names":["coffee table 1 x1*","coffee table 2 x1*","coffee table 4 x1*","coffee table 3 x1*","coffee table 8 x1*","coffee table 5 x1*","coffee table 6 x1","coffee table 7 x1*"]}
+
+[126/145] [chromium] › e2e/skp-ccby.spec.ts:37:3 › cupboard.skp: opens, and the Cut list lists its parts
+[127/145] [chromium] › e2e/sketch-move.spec.ts:124:1 › one corner of a rectangle moves: it stays flat, its edges follow; pushed, its volume is exact
+[chromium] › e2e/skp-ccby.spec.ts:37:3 › cupboard.skp: opens, and the Cut list lists its parts
+[skp-ccby] {"file":"cupboard.skp","title":"Imported cupboard.skp: 14 solids, 8 meshes that are not solid, 1 group, 1 component instance (1 component).","parts":4,"notSolid":4,"loose":171,"boardFeet":0.13,"names":["Rodeo#2 x1*","Hinge x2*","knob x2*","Group x1*"]}
+
+[128/145] [chromium] › e2e/skp-ccby.spec.ts:37:3 › desk.skp: opens, and the Cut list lists its parts
+[129/145] [chromium] › e2e/sketch-move.spec.ts:172:1 › a whole rectangle lifted off the ground goes onto its new plane and pushes there
+[chromium] › e2e/skp-ccby.spec.ts:37:3 › desk.skp: opens, and the Cut list lists its parts
+[skp-ccby] {"file":"desk.skp","title":"Imported desk.skp: 0 solids, 1 mesh that is not solid, 1 component instance (1 component).","parts":1,"notSolid":1,"loose":0,"boardFeet":0,"names":["desk 1 x1*"]}
+
+[130/145] [chromium] › e2e/tool-switch.spec.ts:43:1 › a value typed right after a tool key that waited for an edit goes to the new tool
+[131/145] [chromium] › e2e/skp-ccby.spec.ts:37:3 › side table.skp: opens, and the Cut list lists its parts
+[132/145] [chromium] › e2e/units.spec.ts:9:1 › a cold open says the units, one click changes them, and 300 is then 300 mm
+[133/145] [chromium] › e2e/vcb.spec.ts:17:1 › typed lengths in every woodworker form
+[chromium] › e2e/skp-ccby.spec.ts:37:3 › side table.skp: opens, and the Cut list lists its parts
+[skp-ccby] {"file":"side table.skp","title":"Imported side table.skp: 0 solids, 1 mesh that is not solid, 1 component instance (1 component).","parts":1,"notSolid":1,"loose":0,"boardFeet":0,"names":["side table 2 x1*"]}
+
+[134/145] [chromium] › e2e/skp-ccby.spec.ts:122:1 › cupboard.skp: the Cut list reads in full at 300, 360 and 600 px (lane 20b)
+[135/145] [chromium] › e2e/vcb.spec.ts:38:1 › Esc cancels typing, Ctrl+Z works mid-entry, arrays follow a copy, tool keys pass an untouched box
+[136/145] [chromium] › e2e/units.spec.ts:55:1 › Edit > Units lists the same six, checks the current one, and Choose… opens the picker
+[137/145] [chromium] › e2e/vcb.spec.ts:80:1 › the measurements box clears after undo and redo
+[138/145] [chromium] › e2e/units.spec.ts:80:1 › no first-run hint outside the browser demo
+[139/145] [chromium-timed] › e2e/model-cap.spec.ts:124:1 › a plugin's two array ops that land exactly at the 100,000-solid limit leave the app responsive, and the plugin running
+[chromium-timed] › e2e/model-cap.spec.ts:124:1 › a plugin's two array ops that land exactly at the 100,000-solid limit leave the app responsive, and the plugin running
+[perf] two array ops to the limit: longest frame gap 2333 ms, bound 10574 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[perf] the Outliner pane: longest frame gap 17 ms, bound 10126 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[perf] the Cut list pane: longest frame gap 2183 ms, bound 10126 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[perf] the Materials pane: longest frame gap 2000 ms, bound 10126 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[perf] the Tags pane: longest frame gap 17 ms, bound 10126 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[perf] the Outliner pane: longest frame gap 17 ms, bound 10126 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[perf] select all, then nothing: longest frame gap 2850 ms, bound 9320 ms (cpu 44.8 ms, frame 1756.4 ms)
+
+[140/145] [chromium-timed] › e2e/model-cap.spec.ts:286:1 › F10: texture images are held to 128 million pixels in all, and the viewport decodes them within 32 million
+[141/145] [chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 2,000,000 guides is refused by that count before any is parsed, at once, and nothing grows
+[chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 2,000,000 guides is refused by that count before any is parsed, at once, and nothing grows
+[limits] 2000000 guides (5.3 MB): refused in 51.9 ms (bound 159 ms, cpu 47.6 ms)
+
+[limits] guides: kernel memory grew 12.5 MB, page heap 0.0 MB
+
+[142/145] [chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 2,000,000 dimensions is refused by that count before any is parsed, at once, and nothing grows
+[chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 2,000,000 dimensions is refused by that count before any is parsed, at once, and nothing grows
+[limits] 2000000 dimensions (11.1 MB): refused in 64.0 ms (bound 181 ms, cpu 54.3 ms)
+
+[limits] dimensions: kernel memory grew 18.3 MB, page heap 0.0 MB
+
+[143/145] [chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 1,000,000 tags is refused by that count before any is parsed, at once, and nothing grows
+[chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 1,000,000 tags is refused by that count before any is parsed, at once, and nothing grows
+[limits] 1000000 tags (2.3 MB): refused in 25.1 ms (bound 187 ms, cpu 56.1 ms)
+
+[limits] tags: kernel memory grew 3.4 MB, page heap 0.0 MB
+
+[144/145] [chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 1,000,000 materials is refused by that count before any is parsed, at once, and nothing grows
+[chromium-timed] › e2e/model-counts.spec.ts:131:3 › a .shz listing 1,000,000 materials is refused by that count before any is parsed, at once, and nothing grows
+[limits] 1000000 materials (4.5 MB): refused in 30.5 ms (bound 187 ms, cpu 56.0 ms)
+
+[limits] materials: kernel memory grew 5.6 MB, page heap 0.0 MB
+
+[145/145] [chromium-timed] › e2e/model-counts.spec.ts:185:1 › a .shz at exactly a limit still opens (50,000 guides)
+  8 skipped
+  137 passed (4.7m)
+
+real	4m40.859s
+user	2m15.795s
+sys	0m40.145s
+exit=0

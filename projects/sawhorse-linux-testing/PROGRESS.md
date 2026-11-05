@@ -40,11 +40,11 @@ keyring and launches the app; `harness/shot.sh <run-name> <label>` screenshots; 
 | 7 | Front-end unit tests (vitest) | done | 77 files passed, 1 skipped; 789 tests passed, 2 skipped; 35 s. |
 | 8 | Run the official .deb binary on Ubuntu 24.04 under Xvfb (software GL, llvmpipe) | done | Launches, kernel loads, WebGL2 viewport renders, keyboard modelling works (R, 36,12, P, 3/4 gives a watertight 324 in³ board). Only harmless stderr: AT-SPI bus warning, libEGL DRI3 warnings. |
 | 9 | Save / Save As / re-save / reopen on the Linux desktop build | done | Save and Save As write a valid .shz (zip: mimetype, scene.json, geometry.glb, thumbnail.jpg). Re-save needs no dialog and leaves a .bak beside the file. **Bug found**: a name typed without .shz is saved with no extension and the Open dialog then hides it (bug-reports/01). |
-| 10 | Open a file while the document has unsaved changes | in progress | First attempt: Open dialog closed, document unchanged, no visible prompt. The app uses window.confirm() for "Discard the unsaved changes?"; checking whether WebKitGTK shows it. Screenshots dirty-open-*.png. |
-| 11 | Full Playwright e2e suite under Linux Chromium (145 tests incl. 203-file .skp corpus) | in progress | Running; 72/145 done with 0 failures at last check. Result goes in logs/e2e.log. |
+| 10 | Open a file while the document has unsaved changes | done, cause being confirmed | Scripted experiment (harness/dirty-open-experiment.sh): Open on a clean document works ("Opened one.shz: 1 solid"). Open on a document with unsaved changes also goes straight through, with **no "Discard the unsaved changes?" prompt**, and the unsaved work is gone within a second. The app asks with window.confirm(); on the Linux webview that call appears to return true without showing anything. Screenshots deb-alpha4-dirtyopen-*.png. Note: an earlier attempt looked like Open did nothing; that was GTK location-bar autocompletion garbling a typed path, fixed by pasting paths from the clipboard. |
+| 11 | Full Playwright e2e suite under Linux Chromium (145 tests incl. 203-file .skp corpus) | done | 137 passed, 8 skipped, 0 failed, 4 min 41 s with 3 workers (logs/e2e-linux-chromium.log). The skips are the private-fixture and render-service specs that need files or a service not in the repo. |
 | 12 | Build the Tauri desktop shell from source on Linux | done | `cargo build --locked` in src-tauri: 1 min 36 s after deps, binary 269 MB (debug). Not yet run. |
 | 13 | Run the from-source desktop build of `main` under Xvfb | not started | Repeat steps 8 to 10 against src-tauri/target/debug/sawhorse-desktop. |
-| 14 | Run the AppImage (extracted with unsquashfs, via AppRun) | not started | Checks the bundled WebKitGTK path, which is what most users will double-click. |
+| 14 | Run the AppImage (extracted with unsquashfs, via AppRun) | in progress | Checks the bundled WebKitGTK path, which is what most users will double-click. |
 | 15 | Write the findings up; file bug reports upstream | not started | Drafts live in bug-reports/. Filing needs a GitHub login; the cloud session had no write access to upstream. |
 
 ## Findings so far
@@ -52,7 +52,7 @@ keyring and launches the app; `harness/shot.sh <run-name> <label>` screenshots; 
 - Linux is in good shape: every automated suite passes natively on Linux, and the shipped .deb runs on a
   stock Ubuntu 24.04 with only its two declared dependencies.
 - Confirmed bug (Linux-specific, usability): Save As without typing an extension (bug-reports/01).
-- Open-while-dirty behaviour on Linux is unverified (step 10).
+- Likely bug (Linux-specific, data loss): File > Open with unsaved changes skips the confirmation (step 10; bug-reports/02 once the cause is confirmed).
 - Harmless noise a Linux user will see on the terminal: AT-SPI accessibility-bus warning, libEGL DRI3 warnings
   when there is no hardware acceleration.
 - The GTK save dialog opens in the process's working directory, not the home folder (cosmetic).
