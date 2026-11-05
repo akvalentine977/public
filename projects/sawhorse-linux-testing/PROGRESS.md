@@ -92,6 +92,6 @@ git push -u <your-fork> <branch>     # then open the pull request against sawhor
 | # | Change | Branch | Status |
 |---|--------|--------|--------|
 | P1 | Desktop app waits for the "Discard the unsaved changes?" answer (bug-reports/02) | fix/desktop-discard-question | done: commit 20a858a, patches/0001; typecheck, vitest and e2e files.spec green; the new e2e test fails without the fix |
-| P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | in progress |
-| P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | not started |
+| P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | done: patches/0002; typecheck, vitest, safe-save tests, shell clippy and fmt green |
+| P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | in progress |
 | P4 | Issue #26, metric stock library and labels | | not started, only if time remains |
