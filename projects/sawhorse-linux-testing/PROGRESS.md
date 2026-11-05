@@ -81,7 +81,7 @@ the lockfile was left untouched).
 
 The fork is `akvalentine977/sawhorse`. The cloud session could not push to it (Claude's GitHub App is not
 installed for that repository), so every finished change is also exported as a patch in `patches/`, made with
-`git format-patch` against upstream `main` at `bf2c9f0`. To use one locally:
+`git format-patch` against upstream `main` at `bf2c9f0`. Pull request text for each is in `pr-descriptions.md`. To use a patch locally:
 
 ```bash
 cd sawhorse && git fetch origin && git checkout -b <branch> origin/main
@@ -93,5 +93,5 @@ git push -u <your-fork> <branch>     # then open the pull request against sawhor
 |---|--------|--------|--------|
 | P1 | Desktop app waits for the "Discard the unsaved changes?" answer (bug-reports/02) | fix/desktop-discard-question | done: commit 20a858a, patches/0001; typecheck, vitest and e2e files.spec green; the new e2e test fails without the fix |
 | P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | done: patches/0002; typecheck, vitest, safe-save tests, shell clippy and fmt green |
-| P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | in progress |
+| P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | done: patches/0003; typecheck, full vitest (789) and e2e navigation.spec green |
 | P4 | Issue #26, metric stock library and labels | | not started, only if time remains |
