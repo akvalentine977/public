@@ -47,6 +47,13 @@ Node 22 was enough to build although the README asks for Node 24.
 Neither is covered by upstream's tests: the e2e suite opens files through a hidden `<input type=file>` and
 never exercises the dirty-document prompt, and the desktop shell is only compiled in CI, never run.
 
+## Fixes, and their verification
+
+Both bugs above were fixed the same day (upstream PRs #28 and #29, with #30 adding Back, Left and Bottom views
+and #33 a headless cut-list command for issue #14). The two fixes were then verified in a desktop build of the
+stacked branch on this Linux box: the discard question appears as a native dialog, OK opens and Cancel keeps
+the model; Save As without an extension writes `.shz` and re-saves keep working. See PROGRESS.md.
+
 ## Smaller observations
 
 - Harmless terminal noise on Linux: an AT-SPI accessibility-bus warning and two libEGL DRI3 warnings when

@@ -136,3 +136,17 @@ Not started here because it needs design choices the maintainer should see first
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:feat/back-left-bottom-views?expand=1
 2. Done 2026-11-05: pull requests sawhorse3d/sawhorse#28 (discard question), #29 (Save As extension), #30 (Back, Left, Bottom views), #33 (headless cut list CLI); issues #31 (Save As, fixed by #29) and #32 (discard question, fixed by #28). Add `Fixes #32` to #28 and `Fixes #31` to #29 so GitHub closes them on merge, then watch the PRs for maintainer comments and CI.
 3. Optionally take on #26 with the notes above.
+
+### Fixes verified in the Linux desktop build (2026-11-05, 07:15 UTC)
+
+The desktop shell was built from `stack/all-three` (debug profile, loading the Vite dev server) and driven
+under Xvfb with the same scripts that found the bugs:
+
+- PR #28: Open over unsaved changes now shows a native "Sawhorse: Discard the unsaved changes to this model?"
+  dialog with Cancel and OK (screenshots/stack-fixed-discard-dialog.png). OK opens the file ("Opened one.shz:
+  1 solid"); Cancel leaves the model untouched (screenshots/stack-fixed-ok-and-cancel.png). Note for anyone
+  scripting it: Return on that dialog activates Cancel, the focused default; click OK to go ahead.
+- PR #29: Save As with `noext` typed writes `noext.shz`; a following Ctrl+S writes it again and keeps
+  `noext.shz.bak`, so the shell's scope rule for the appended extension holds (screenshots/stack-fixed-saveas-noext.png).
+
+Ready-to-post comments for the PRs are in `pr-comments.md`.
