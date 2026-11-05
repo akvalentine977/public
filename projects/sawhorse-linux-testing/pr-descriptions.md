@@ -79,3 +79,35 @@ To try all three at once locally, apply `patches/stacked/*.patch` instead, where
 
 All three add a section at the top of `## [Unreleased]` in `CHANGELOG.md`. Whichever merges second will
 conflict there; keep both sections, newest first.
+
+---
+
+## PR 4: branch `feat/cli-cutlist`
+
+**Title:** feat(cli): the cut list or the nesting of a saved .shz as JSON, headless
+
+Issue #14 asked for a way to read a cut list from a `.shz` as JSON without opening the app (the first of the
+three things aramshaw listed). This is that, and the nesting, as a small new workspace crate, `crates/cli`.
+
+**Use.** `sawhorse-cli cutlist Bookshelf.shz` prints what the Cut list pane reads: rows with finished sizes,
+quantities, grain, stock, board feet or area, the totals and the hash. `sawhorse-cli nest Bookshelf.shz` prints
+what the Nesting section reads. Options: `--visible-only`, `--rounding sixteenth|thirty-second|half-mm`
+(cutlist), `--pretty`. `cargo run -p sawhorse-cli -- cutlist file.shz` works from a checkout.
+
+**How.** `sawhorse_shz::read` then `Model::cut_list` / `Model::nest`, serialized with serde exactly as
+`wasm-api` does for the app, so a file gives the same JSON here and in the app, hash included. No dependency
+beyond the kernel, the reader and serde; argument parsing is a few lines of std; it reads and prints, never
+writes. It builds for wasm32 like every workspace crate, so CI's day-1 spike still holds.
+
+**Not in this.** Building or changing a model from the command line, and an MCP server (the other two things
+in #14). The kernel's op log makes both possible later; this PR only gets the numbers out. If you would rather
+have this live under a different name or as a `--headless` mode of something else, it is a 150-line crate and
+easy to move.
+
+**Tests.** `crates/cli/tests/cutlist.rs`: a saved board's cut list and nesting equal the kernel's for the same
+model byte for byte; rounding and visible-only reach the kernel; a file that is not a document says so; the
+command line end to end (every option, every refusal, a missing file). Smoke-tested on a `.shz` saved by the
+0.1.0-alpha.4 desktop app. `cargo fmt --check`, `cargo clippy -D warnings` and the wasm32 check pass.
+README and changelog updated.
+
+Refs #14

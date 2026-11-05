@@ -95,6 +95,7 @@ git push -u <your-fork> <branch>     # then open the pull request against sawhor
 | P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | done: patches/0002; typecheck, vitest, safe-save tests, shell clippy and fmt green |
 | P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | done: patches/0003; typecheck, full vitest (789) and e2e navigation.spec green |
 | P4 | Issue #26, metric stock library and labels | | not started; hand-off notes below |
+| P5 | Headless `sawhorse-cli cutlist` / `nest` for issue #14 | feat/cli-cutlist | done: patches/0004, pushed to the fork; 5 tests, clippy, fmt and the wasm32 check green; smoke-tested on a file the alpha.4 app saved. PR text under "PR 4" in pr-descriptions.md |
 
 ### The three changes together
 

@@ -1,0 +1,533 @@
+From a1fa28da546f34ed96becca613aeac6f2bfc2a65 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 5 Nov 2026 06:53:11 +0000
+Subject: [PATCH] feat(cli): the cut list or the nesting of a saved .shz as
+ JSON, headless
+
+Issue #14 asked for a way to read a cut list from a .shz as JSON
+without opening the app. sawhorse-cli (crates/cli, a new workspace
+crate) does that and the nesting: `sawhorse-cli cutlist Bookshelf.shz`
+prints what the Cut list pane reads, `sawhorse-cli nest Bookshelf.shz`
+what the Nesting section reads, with --visible-only, --rounding
+sixteenth|thirty-second|half-mm (cutlist) and --pretty. It is the
+kernel's own serialization through sawhorse_shz::read, so a file gives
+the same JSON here and in the app, hash included. No dependency beyond
+the kernel, the reader and serde; it reads and prints, never writes;
+builds for wasm32 like every workspace crate. Building or changing a
+model from the command line, and an MCP server, are left for later.
+
+Tests: crates/cli/tests/cutlist.rs (a saved board's cut list and
+nesting equal the kernel's for the same model, byte for byte; rounding
+and visible-only reach the kernel; a file that is not a document says
+so; the command line end to end: every option, every refusal, a
+missing file). Smoke-tested on a .shz saved by the 0.1.0-alpha.4 app.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01DaoaGXWjtprTCuXM54m2KR
+---
+ CHANGELOG.md                |   5 +
+ README.md                   |   3 +
+ crates/Cargo.lock           |  10 ++
+ crates/Cargo.toml           |   2 +-
+ crates/cli/Cargo.toml       |  23 +++++
+ crates/cli/src/lib.rs       | 173 ++++++++++++++++++++++++++++++++++
+ crates/cli/src/main.rs      |  16 ++++
+ crates/cli/tests/cutlist.rs | 182 ++++++++++++++++++++++++++++++++++++
+ 8 files changed, 413 insertions(+), 1 deletion(-)
+ create mode 100644 crates/cli/Cargo.toml
+ create mode 100644 crates/cli/src/lib.rs
+ create mode 100644 crates/cli/src/main.rs
+ create mode 100644 crates/cli/tests/cutlist.rs
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index fd5e0be..e132440 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,11 @@ All notable changes to Sawhorse are recorded here. The format follows [Keep a Ch
+ 
+ ## [Unreleased]
+ 
++### Added (a headless cut list, 2026-11-05)
++
++- **`sawhorse-cli`: the cut list or the nesting of a saved `.shz` as JSON, with no app** ([#14](https://github.com/sawhorse3d/sawhorse/issues/14): "reading a cut list from a .shz as JSON without opening the app"). `sawhorse-cli cutlist Bookshelf.shz` prints what the Cut list pane reads (rows with finished sizes, quantities, grain, stock, board feet or area, the totals, the hash), `sawhorse-cli nest Bookshelf.shz` what the Nesting section reads; `--visible-only`, `--rounding sixteenth|thirty-second|half-mm` (cutlist) and `--pretty`. It is the kernel's own serialization through `sawhorse_shz::read`, so a file gives the same JSON here and in the app. A new workspace crate, `crates/cli`, with no dependency beyond the kernel, the reader and serde_json; it reads and prints, never writes. A CLI that builds or changes a model, and an MCP server, are not in this; the kernel's op log makes both possible later.
++- Tests: `crates/cli/tests/cutlist.rs` (a saved board's cut list and nesting equal the kernel's for the same model, byte for byte; rounding and visible-only reach the kernel; a file that is not a document says so; the command line end to end: every option, every refusal, a missing file).
++
+ ### Fixed (lane 27, 2026-11-01)
+ 
+ - **A SketchUp import's curve note says what the model holds** ([#17](https://github.com/sawhorse3d/sawhorse/issues/17)). openskp's `gondola_v20.skp` said "16 curves came in as curves (8 arcs, 8 polylines)" while the model held 24 polylines and no arc: the note counted a component's curves once, for its definition, in the frame its items are built in, and its arcs sit in components placed with an uneven scale, which turns each copy's arcs into polylines only where it lands. The note now counts every placed copy as it lands, as the curves view does (the gondola: "24 curves came in as curves" and "16 circles or arcs in groups or components scaled unevenly came in as polylines"), and an uneven scale on a component's placement is said with a group's: "N circles or arcs in groups or components scaled unevenly came in as polylines". Five of the 35 real files tried said a different number than their curves view (Corynth's cupboard said 30 curves, 6 circles and 24 arcs, for a model holding 12 circles and 48 arcs); none does now.
+diff --git a/README.md b/README.md
+index 6259017..91391d1 100644
+--- a/README.md
++++ b/README.md
+@@ -28,6 +28,8 @@ A free, local-first, open-source push/pull 3D modeler for woodworkers and makers
+ 
+ **Plugins**: tools, panels and commands in sandboxed JavaScript with declared permissions; three samples come with the app. Writing one: [`docs/PLUGINS.md`](docs/PLUGINS.md).
+ 
++**Headless**: `sawhorse-cli cutlist Bookshelf.shz` prints the cut list of a saved file as JSON, and `sawhorse-cli nest Bookshelf.shz` its nesting, exactly what the app's panes read (`--visible-only`, `--rounding`, `--pretty`; `crates/cli`). For scripts and agents that want the numbers without the app.
++
+ ## Not yet
+ 
+ So nobody finds out the hard way:
+@@ -69,6 +71,7 @@ A production build: `npm run build:all` (kernel + app into `dist/`, servable fro
+ | `crates/inference` | Picking and inference snapping: own BVH, pixel tolerance at depth, occlusion, ranked inference kinds, locks |
+ | `crates/import`, `crates/export`, `crates/shz` | File readers and writers, the `.shz` format |
+ | `crates/wasm-api` | The wasm-bindgen surface the front end's kernel worker loads |
++| `crates/cli` | `sawhorse-cli`: the cut list or the nesting of a saved `.shz` as JSON, with no app (`cargo run -p sawhorse-cli -- cutlist Bookshelf.shz`) |
+ | `packages/plugin-api` | The plugin API's types, runtime and checks |
+ | `src-tauri/` | Tauri 2 desktop shell |
+ | `site/` | The public site's landing page; `scripts/build-site.mjs` adds the demo, the guide and the changelog |
+diff --git a/crates/Cargo.lock b/crates/Cargo.lock
+index 29c84c3..e6a8309 100644
+--- a/crates/Cargo.lock
++++ b/crates/Cargo.lock
+@@ -546,6 +546,16 @@ dependencies = [
+  "wait-timeout",
+ ]
+ 
++[[package]]
++name = "sawhorse-cli"
++version = "0.1.0-alpha.4"
++dependencies = [
++ "sawhorse-kernel",
++ "sawhorse-shz",
++ "serde",
++ "serde_json",
++]
++
+ [[package]]
+ name = "sawhorse-export"
+ version = "0.1.0-alpha.4"
+diff --git a/crates/Cargo.toml b/crates/Cargo.toml
+index a29cb5f..598febc 100644
+--- a/crates/Cargo.toml
++++ b/crates/Cargo.toml
+@@ -4,7 +4,7 @@
+ # Never commit a target-dir here; CARGO_TARGET_DIR comes from scripts/env.sh.
+ [workspace]
+ resolver = "3"
+-members = ["kernel", "tessellate", "inference", "export", "import", "shz", "wasm-api"]
++members = ["kernel", "tessellate", "inference", "export", "import", "shz", "wasm-api", "cli"]
+ # cargo-fuzz harness: needs nightly + libFuzzer, so it is its own workspace.
+ exclude = ["kernel/fuzz"]
+ 
+diff --git a/crates/cli/Cargo.toml b/crates/cli/Cargo.toml
+new file mode 100644
+index 0000000..707858e
+--- /dev/null
++++ b/crates/cli/Cargo.toml
+@@ -0,0 +1,23 @@
++[package]
++name = "sawhorse-cli"
++description = "A headless Sawhorse: the cut list and the nesting of a saved .shz as JSON, with no app (issue #14)."
++version.workspace = true
++edition.workspace = true
++rust-version.workspace = true
++license.workspace = true
++authors.workspace = true
++repository.workspace = true
++publish.workspace = true
++
++[[bin]]
++name = "sawhorse-cli"
++path = "src/main.rs"
++
++[dependencies]
++sawhorse-kernel.workspace = true
++sawhorse-shz.workspace = true
++serde.workspace = true
++serde_json.workspace = true
++
++[lints]
++workspace = true
+diff --git a/crates/cli/src/lib.rs b/crates/cli/src/lib.rs
+new file mode 100644
+index 0000000..8fb4745
+--- /dev/null
++++ b/crates/cli/src/lib.rs
+@@ -0,0 +1,173 @@
++//! A headless Sawhorse (issue #14): read a saved `.shz` and print its cut list or its
++//! nesting as JSON, exactly what the app's Cut list pane and Nesting section read, so a
++//! script or an agent can get them without opening the app.
++//!
++//! ```text
++//! sawhorse-cli cutlist Bookshelf.shz [--visible-only] [--rounding sixteenth|thirty-second|half-mm] [--pretty]
++//! sawhorse-cli nest Bookshelf.shz [--visible-only] [--pretty]
++//! ```
++//!
++//! The JSON is the kernel's own ([`sawhorse_kernel::cutlist::CutList`] and
++//! [`sawhorse_kernel::nesting::Nesting`] through serde), hash included, so what this prints
++//! for a file is what the app shows for it. Nothing here writes anything.
++
++use sawhorse_kernel::cutlist::{CutOptions, Rounding};
++use sawhorse_kernel::nesting::NestOptions;
++
++/// What the command line asks for.
++#[derive(Debug, Clone, PartialEq)]
++pub enum Command {
++    /// The cut list of the file.
++    CutList {
++        path: String,
++        options: CutOptions,
++        pretty: bool,
++    },
++    /// The nesting of the file.
++    Nest {
++        path: String,
++        options: NestOptions,
++        pretty: bool,
++    },
++    /// `--help`, or no arguments.
++    Help,
++}
++
++pub const USAGE: &str = "\
++Usage: sawhorse-cli <command> <file.shz> [options]
++
++Commands
++  cutlist   The cut list as JSON: one row per part with its finished size, quantity,
++            grain, stock and board feet or area, the totals, and a hash.
++  nest      The nesting as JSON: every sheet and board with its placements and cuts,
++            the parts no stock takes, the totals and the stock library used.
++
++Options
++  --visible-only          Count only what is drawn (hidden parts, tags and groups left out).
++  --rounding <r>          cutlist only: sixteenth (the default), thirty-second or half-mm.
++  --pretty                Indented JSON.
++  -h, --help              This text.
++
++The JSON is the app's own: what the Cut list pane and the Nesting section read.";
++
++/// Parse the arguments after the program name.
++pub fn parse(args: &[String]) -> Result<Command, String> {
++    let mut it = args.iter();
++    let Some(command) = it.next() else {
++        return Ok(Command::Help);
++    };
++    if command == "-h" || command == "--help" || command == "help" {
++        return Ok(Command::Help);
++    }
++    if command != "cutlist" && command != "nest" {
++        return Err(format!(
++            "unknown command {command}: cutlist or nest (--help for the usage)"
++        ));
++    }
++    let mut path: Option<String> = None;
++    let mut visible_only = false;
++    let mut rounding = Rounding::default();
++    let mut pretty = false;
++    while let Some(a) = it.next() {
++        match a.as_str() {
++            "--visible-only" => visible_only = true,
++            "--pretty" => pretty = true,
++            "--rounding" => {
++                if command != "cutlist" {
++                    return Err("--rounding is for cutlist only".to_string());
++                }
++                let Some(r) = it.next() else {
++                    return Err(
++                        "--rounding needs a value: sixteenth, thirty-second or half-mm".to_string(),
++                    );
++                };
++                rounding = match r.as_str() {
++                    "sixteenth" | "1/16" => Rounding::Sixteenth,
++                    "thirty-second" | "thirty_second" | "1/32" => Rounding::ThirtySecond,
++                    "half-mm" | "half_mm" | "0.5mm" => Rounding::HalfMm,
++                    other => {
++                        return Err(format!(
++                            "unknown rounding {other}: sixteenth, thirty-second or half-mm"
++                        ));
++                    }
++                };
++            }
++            s if s.starts_with('-') => {
++                return Err(format!("unknown option {s} (--help for the usage)"));
++            }
++            s => {
++                if path.replace(s.to_string()).is_some() {
++                    return Err("one file at a time".to_string());
++                }
++            }
++        }
++    }
++    let Some(path) = path else {
++        return Err(format!(
++            "{command} needs a file: sawhorse-cli {command} <file.shz>"
++        ));
++    };
++    Ok(if command == "cutlist" {
++        Command::CutList {
++            path,
++            options: CutOptions {
++                rounding,
++                visible_only,
++            },
++            pretty,
++        }
++    } else {
++        Command::Nest {
++            path,
++            options: NestOptions {
++                visible_only,
++                algorithm: None,
++            },
++            pretty,
++        }
++    })
++}
++
++/// The cut list of a `.shz` file's bytes, as JSON.
++pub fn cut_list_json(shz: &[u8], options: &CutOptions, pretty: bool) -> Result<String, String> {
++    let opened = sawhorse_shz::read(shz).map_err(|e| format!("could not open the file: {e}"))?;
++    let list = opened.document.model().cut_list(options);
++    to_json(&list, pretty)
++}
++
++/// The nesting of a `.shz` file's bytes, as JSON.
++pub fn nest_json(shz: &[u8], options: &NestOptions, pretty: bool) -> Result<String, String> {
++    let opened = sawhorse_shz::read(shz).map_err(|e| format!("could not open the file: {e}"))?;
++    let nesting = opened.document.model().nest(options);
++    to_json(&nesting, pretty)
++}
++
++fn to_json<T: serde::Serialize>(value: &T, pretty: bool) -> Result<String, String> {
++    if pretty {
++        serde_json::to_string_pretty(value)
++    } else {
++        serde_json::to_string(value)
++    }
++    .map_err(|e| e.to_string())
++}
++
++/// Run the parsed command: the text to print, or why not.
++pub fn run(command: &Command) -> Result<String, String> {
++    match command {
++        Command::Help => Ok(USAGE.to_string()),
++        Command::CutList {
++            path,
++            options,
++            pretty,
++        } => cut_list_json(&read(path)?, options, *pretty),
++        Command::Nest {
++            path,
++            options,
++            pretty,
++        } => nest_json(&read(path)?, options, *pretty),
++    }
++}
++
++fn read(path: &str) -> Result<Vec<u8>, String> {
++    std::fs::read(path).map_err(|e| format!("could not read {path}: {e}"))
++}
+diff --git a/crates/cli/src/main.rs b/crates/cli/src/main.rs
+new file mode 100644
+index 0000000..0640212
+--- /dev/null
++++ b/crates/cli/src/main.rs
+@@ -0,0 +1,16 @@
++//! `sawhorse-cli`: the cut list or the nesting of a saved `.shz`, as JSON (see the crate docs).
++use std::process::ExitCode;
++
++fn main() -> ExitCode {
++    let args: Vec<String> = std::env::args().skip(1).collect();
++    match sawhorse_cli::parse(&args).and_then(|c| sawhorse_cli::run(&c)) {
++        Ok(text) => {
++            println!("{text}");
++            ExitCode::SUCCESS
++        }
++        Err(e) => {
++            eprintln!("sawhorse-cli: {e}");
++            ExitCode::from(2)
++        }
++    }
++}
+diff --git a/crates/cli/tests/cutlist.rs b/crates/cli/tests/cutlist.rs
+new file mode 100644
+index 0000000..3e56ead
+--- /dev/null
++++ b/crates/cli/tests/cutlist.rs
+@@ -0,0 +1,182 @@
++//! The command prints exactly what the kernel computes for the file, and says why not.
++use sawhorse_cli::{Command, cut_list_json, nest_json, parse, run};
++use sawhorse_kernel::cutlist::{CutOptions, Rounding};
++use sawhorse_kernel::document::Document;
++use sawhorse_kernel::model::Op;
++use sawhorse_kernel::nesting::NestOptions;
++use sawhorse_shz::SaveOptions;
++
++/// A 3/4 x 12 x 36 in board, as a component "Shelf" placed twice, saved as a .shz.
++fn shelves() -> (Document, Vec<u8>) {
++    let inch = 0.0254;
++    let mut d = Document::with_ground_sketch();
++    let ops = [
++        format!(
++            r#"{{"op":"add_rectangle","sketch":1,"x":0,"y":0,"w":{},"h":{}}}"#,
++            36.0 * inch,
++            12.0 * inch
++        ),
++        format!(
++            r#"{{"op":"extrude","sketch":1,"region":1,"distance":{}}}"#,
++            0.75 * inch
++        ),
++        r#"{"op":"rename_object","object":1,"name":"Shelf"}"#.to_string(),
++    ];
++    for op in ops {
++        d.apply(&serde_json::from_str::<Op>(&op).unwrap()).unwrap();
++    }
++    let bytes = sawhorse_shz::write(
++        d.model(),
++        &SaveOptions {
++            display_units: Some("frac-in".to_string()),
++            thumbnail_png: None,
++            generator: None,
++            plugin_data: None,
++        },
++    )
++    .unwrap();
++    (d, bytes)
++}
++
++#[test]
++fn the_cut_list_is_the_kernels_own_for_the_file() {
++    let (d, bytes) = shelves();
++    let opts = CutOptions::default();
++    let printed = cut_list_json(&bytes, &opts, false).unwrap();
++    let expected = serde_json::to_string(&d.model().cut_list(&opts)).unwrap();
++    assert_eq!(printed, expected);
++    let v: serde_json::Value = serde_json::from_str(&printed).unwrap();
++    assert_eq!(v["rows"].as_array().unwrap().len(), 1);
++    assert_eq!(v["rows"][0]["name"], "Shelf");
++    assert_eq!(v["rows"][0]["qty"], 1);
++    // Finished size in metres, thickness first: 3/4 x 12 x 36 in.
++    let size = v["rows"][0]["size"].as_array().unwrap();
++    for (got, want) in size.iter().zip([0.75, 12.0, 36.0]) {
++        assert!(
++            (got.as_f64().unwrap() / 0.0254 - want).abs() < 1e-9,
++            "{size:?}"
++        );
++    }
++    assert!(v["hash"].as_str().unwrap().len() >= 8);
++}
++
++#[test]
++fn rounding_and_visible_only_reach_the_kernel() {
++    let (d, bytes) = shelves();
++    let opts = CutOptions {
++        rounding: Rounding::HalfMm,
++        visible_only: true,
++    };
++    let printed = cut_list_json(&bytes, &opts, true).unwrap();
++    assert_eq!(
++        printed,
++        serde_json::to_string_pretty(&d.model().cut_list(&opts)).unwrap()
++    );
++    let v: serde_json::Value = serde_json::from_str(&printed).unwrap();
++    assert_eq!(v["rounding"], "half_mm");
++    assert_eq!(v["visible_only"], true);
++}
++
++#[test]
++fn the_nesting_is_the_kernels_own_for_the_file() {
++    let (d, bytes) = shelves();
++    let opts = NestOptions::default();
++    assert_eq!(
++        nest_json(&bytes, &opts, false).unwrap(),
++        serde_json::to_string(&d.model().nest(&opts)).unwrap()
++    );
++}
++
++#[test]
++fn a_file_that_is_not_a_document_says_so() {
++    let e = cut_list_json(b"not a zip", &CutOptions::default(), false).unwrap_err();
++    assert!(e.starts_with("could not open the file: "), "{e}");
++}
++
++#[test]
++fn the_command_line_is_parsed_and_run_end_to_end() {
++    let (d, bytes) = shelves();
++    let path = std::env::temp_dir().join(format!("sawhorse-cli-{}.shz", std::process::id()));
++    std::fs::write(&path, &bytes).unwrap();
++    let p = path.to_string_lossy().to_string();
++    let args = |a: &[&str]| a.iter().map(|s| s.to_string()).collect::<Vec<_>>();
++
++    let c = parse(&args(&[
++        "cutlist",
++        &p,
++        "--rounding",
++        "thirty-second",
++        "--visible-only",
++    ]))
++    .unwrap();
++    assert_eq!(
++        c,
++        Command::CutList {
++            path: p.clone(),
++            options: CutOptions {
++                rounding: Rounding::ThirtySecond,
++                visible_only: true
++            },
++            pretty: false
++        }
++    );
++    let printed = run(&c).unwrap();
++    assert_eq!(
++        printed,
++        serde_json::to_string(&d.model().cut_list(&CutOptions {
++            rounding: Rounding::ThirtySecond,
++            visible_only: true
++        }))
++        .unwrap()
++    );
++
++    let c = parse(&args(&["nest", &p, "--pretty"])).unwrap();
++    assert_eq!(
++        c,
++        Command::Nest {
++            path: p.clone(),
++            options: NestOptions::default(),
++            pretty: true
++        }
++    );
++    assert!(run(&c).unwrap().starts_with("{\n"));
++
++    assert_eq!(parse(&args(&[])).unwrap(), Command::Help);
++    assert!(run(&Command::Help).unwrap().starts_with("Usage:"));
++    assert!(
++        parse(&args(&["cutlist"]))
++            .unwrap_err()
++            .contains("needs a file")
++    );
++    assert!(
++        parse(&args(&["nest", &p, "--rounding", "half-mm"]))
++            .unwrap_err()
++            .contains("cutlist only")
++    );
++    assert!(
++        parse(&args(&["cutlist", &p, "--rounding", "coarse"]))
++            .unwrap_err()
++            .contains("unknown rounding")
++    );
++    assert!(
++        parse(&args(&["saw", &p]))
++            .unwrap_err()
++            .contains("unknown command")
++    );
++    assert!(
++        parse(&args(&["cutlist", &p, "--loud"]))
++            .unwrap_err()
++            .contains("unknown option")
++    );
++    let missing = run(&Command::CutList {
++        path: "/nowhere/none.shz".to_string(),
++        options: CutOptions::default(),
++        pretty: false,
++    })
++    .unwrap_err();
++    assert!(
++        missing.starts_with("could not read /nowhere/none.shz"),
++        "{missing}"
++    );
++    std::fs::remove_file(&path).ok();
++}
+-- 
+2.43.0
+
