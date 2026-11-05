@@ -17,6 +17,15 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <!-- Optional: lets the ringing screen pop up by itself. Granted via adb, see README. -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Optional: voice control ("stop" / "snooze") while the ringing screen is showing. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Lets the app see the watch's speech recognition service (package visibility, API 30+). -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
 
     <application
         android:name=".BigAlarmApp"

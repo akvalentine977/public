@@ -60,6 +60,7 @@ object Routes {
     const val EDIT = "edit"
     const val EDIT_NAME = "edit/name"
     const val EDIT_TIME = "edit/time"
+    const val EDIT_SNOOZE = "edit/snooze"
     const val EDIT_REPEAT = "edit/repeat"
     const val EDIT_REPEAT_DAYS = "edit/repeat/days"
     const val EDIT_REPEAT_INTERVAL = "edit/repeat/interval"
@@ -88,6 +89,7 @@ fun BigAlarmNavHost() {
                             minute = (start.minute / 5) * 5,
                             vibrate = graph.settings.defaultVibrate.value,
                             sound = graph.settings.defaultSound.value,
+                            ringUntilDismissed = graph.settings.defaultRingUntilDismissed.value,
                         ),
                     )
                     navController.navigate(Routes.EDIT)
@@ -108,9 +110,11 @@ fun BigAlarmNavHost() {
                 onName = { navController.navigate(Routes.EDIT_NAME) },
                 onTime = { navController.navigate(Routes.EDIT_TIME) },
                 onRepeat = { navController.navigate(Routes.EDIT_REPEAT) },
+                onSnooze = { navController.navigate(Routes.EDIT_SNOOZE) },
                 onDone = { navController.popBackStack(Routes.ALARMS, inclusive = false) },
             )
         }
+        composable(Routes.EDIT_SNOOZE) { SnoozeScreen(onDone = { navController.popBackStack() }) }
         composable(Routes.EDIT_NAME) { NameScreen(onDone = { navController.popBackStack() }) }
         composable(Routes.EDIT_TIME) { TimeScreen(onDone = { navController.popBackStack() }) }
         composable(Routes.EDIT_REPEAT) {

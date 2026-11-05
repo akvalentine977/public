@@ -73,11 +73,12 @@ fun NameScreen(onDone: () -> Unit) {
             item {
                 draft?.let { alarm ->
                     Text(
-                        alarm.displayName,
+                        alarmTitle(alarm),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                         fontSize = nameSize,
                         lineHeight = nameSize * 1.2f,
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
                         maxLines = 6,
                     )
                 }
@@ -98,7 +99,7 @@ fun NameScreen(onDone: () -> Unit) {
                             onDone()
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(name, maxLines = 3) },
+                        label = { Text(nameForDisplay(name), maxLines = 3) },
                     )
                 }
             }
@@ -326,6 +327,36 @@ fun OnceDateScreen(onDone: () -> Unit) {
         },
         minValidDate = today,
     )
+}
+
+/** Per-alarm snooze length; null means "use the app default". */
+@Composable
+fun SnoozeScreen(onDone: () -> Unit) {
+    val draft by EditDraft.alarm.collectAsState()
+    val defaultSnooze by LocalContext.current.appGraph.settings.snoozeMinutes.collectAsState()
+    val alarm = draft ?: run {
+        LaunchedEffect(Unit) { onDone() }
+        return
+    }
+    val listState = rememberTransformingLazyColumnState()
+    val choices: List<Int?> = listOf(null, 1, 3, 5, 10, 15, 20, 30, 45, 60)
+
+    ScreenScaffold(scrollState = listState) { contentPadding ->
+        TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
+            item { ListHeader { Text("Snooze") } }
+            items(choices, key = { it ?: 0 }) { minutes ->
+                RadioButton(
+                    selected = alarm.snoozeMinutes == minutes,
+                    onSelect = {
+                        EditDraft.update { it.copy(snoozeMinutes = minutes) }
+                        onDone()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(minutes?.let { "$it min" } ?: "App default ($defaultSnooze min)") },
+                )
+            }
+        }
+    }
 }
 
 /** Shared "pick a number of minutes" screen for snooze and auto-silence settings. */

@@ -1,5 +1,6 @@
 package com.akvalentine.bigalarm.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.akvalentine.bigalarm.core.Alarm
@@ -22,6 +23,9 @@ data class AlarmEntity(
     val sound: Boolean,
     val snoozedUntil: Long?,
     val createdAt: Long,
+    // Added in schema version 2 (see AlarmDatabase.MIGRATION_1_2).
+    val snoozeMinutes: Int? = null,
+    @ColumnInfo(defaultValue = "0") val ringUntilDismissed: Boolean = false,
 ) {
     fun toAlarm(): Alarm = Alarm(
         id = id,
@@ -39,6 +43,8 @@ data class AlarmEntity(
         sound = sound,
         snoozedUntil = snoozedUntil,
         createdAt = createdAt,
+        snoozeMinutes = snoozeMinutes,
+        ringUntilDismissed = ringUntilDismissed,
     )
 
     companion object {
@@ -56,6 +62,8 @@ data class AlarmEntity(
             sound = alarm.sound,
             snoozedUntil = alarm.snoozedUntil,
             createdAt = alarm.createdAt,
+            snoozeMinutes = alarm.snoozeMinutes,
+            ringUntilDismissed = alarm.ringUntilDismissed,
         )
     }
 }

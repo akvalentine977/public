@@ -93,18 +93,22 @@ class AlarmRingService : Service() {
             current = alarm
             publishState()
 
-            acquireWakeLocks()
+            acquireWakeLocks(indefinite = alarm.ringUntilDismissed)
             notificationManager().notify(NOTIFICATION_ID, buildNotification(alarm))
             // An alarm with neither vibration nor sound would be useless, so vibrate at least.
             ringer.start(vibrate = alarm.vibrate || !alarm.sound, sound = alarm.sound)
             tryOpenRingingScreen()
 
             autoSilenceJob?.cancel()
-            val minutes = graph.settings.autoSilenceMinutes.value.coerceIn(1, 60)
-            autoSilenceJob = launch {
-                delay(minutes * 60_000L)
-                postMissed(alarm)
-                finishCurrent(snooze = false)
+            autoSilenceJob = if (alarm.ringUntilDismissed) {
+                null
+            } else {
+                val minutes = graph.settings.autoSilenceMinutes.value.coerceIn(1, 60)
+                launch {
+                    delay(minutes * 60_000L)
+                    postMissed(alarm)
+                    finishCurrent(snooze = false)
+                }
             }
         }
     }
@@ -129,7 +133,7 @@ class AlarmRingService : Service() {
         val graph = appGraph
         scope.launch {
             if (snooze) {
-                graph.actions.snooze(alarm.id, graph.settings.snoozeMinutes.value)
+                graph.actions.snooze(alarm.id, graph.settings.effectiveSnoozeMinutes(alarm))
             }
             advance()
         }
@@ -176,10 +180,19 @@ class AlarmRingService : Service() {
 
     private fun buildNotification(alarm: Alarm): Notification {
         val is24h = DateFormat.is24HourFormat(this)
-        return buildNotification(alarm.displayName, Format.time(alarm.hour, alarm.minute, is24h))
+        val settings = appGraph.settings
+        return buildNotification(
+            settings.displayName(alarm),
+            Format.time(alarm.hour, alarm.minute, is24h),
+            settings.effectiveSnoozeMinutes(alarm),
+        )
     }
 
-    private fun buildNotification(title: String, text: String): Notification {
+    private fun buildNotification(
+        title: String,
+        text: String,
+        snoozeMinutes: Int = appGraph.settings.snoozeMinutes.value,
+    ): Notification {
         val open = PendingIntent.getActivity(
             this,
             0,
@@ -187,7 +200,6 @@ class AlarmRingService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val icon = Icon.createWithResource(this, R.drawable.ic_notification)
-        val snoozeMinutes = appGraph.settings.snoozeMinutes.value
         return Notification.Builder(this, BigAlarmApp.CHANNEL_RINGING)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
@@ -214,7 +226,7 @@ class AlarmRingService : Service() {
     private fun postMissed(alarm: Alarm) {
         val notification = Notification.Builder(this, BigAlarmApp.CHANNEL_MISSED)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Missed: ${alarm.displayName}")
+            .setContentTitle("Missed: ${appGraph.settings.displayName(alarm)}")
             .setContentText(Format.time(alarm.hour, alarm.minute, DateFormat.is24HourFormat(this)))
             .setCategory(Notification.CATEGORY_ALARM)
             .setAutoCancel(true)
@@ -223,11 +235,11 @@ class AlarmRingService : Service() {
     }
 
     @Suppress("DEPRECATION")
-    private fun acquireWakeLocks() {
-        if (wakeLock?.isHeld == true) return
+    private fun acquireWakeLocks(indefinite: Boolean) {
+        releaseWakeLocks()
         val pm = getSystemService(PowerManager::class.java)
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "BigAlarm:ring").apply {
-            acquire(MAX_RING_MILLIS)
+            acquire(if (indefinite) INDEFINITE_RING_MILLIS else MAX_RING_MILLIS)
         }
         // Deprecated but still the only way for an app to turn the screen on from a service.
         runCatching {
@@ -266,6 +278,8 @@ class AlarmRingService : Service() {
         private const val NOTIFICATION_ID = 1
         private const val MISSED_NOTIFICATION_BASE = 1000
         private const val MAX_RING_MILLIS = 61 * 60_000L
+        /** Safety cap for "ring until dismissed" so a forgotten watch does not hold the CPU for days. */
+        private const val INDEFINITE_RING_MILLIS = 12 * 60 * 60_000L
         private const val SCREEN_ON_MILLIS = 15_000L
 
         fun dismiss(context: Context) = context.startService(

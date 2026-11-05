@@ -4,11 +4,17 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings as AndroidSettings
+import android.speech.SpeechRecognizer
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +42,19 @@ fun SettingsScreen(onTextSize: () -> Unit, onSnooze: () -> Unit, onAutoSilence: 
     val silence by settings.autoSilenceMinutes.collectAsState()
     val defaultVibrate by settings.defaultVibrate.collectAsState()
     val defaultSound by settings.defaultSound.collectAsState()
+    val defaultRingUntilDismissed by settings.defaultRingUntilDismissed.collectAsState()
+    val uppercase by settings.uppercaseNames.collectAsState()
+    val voiceControl by settings.voiceControl.collectAsState()
     val listState = rememberTransformingLazyColumnState()
+
+    val speechAvailable = remember { SpeechRecognizer.isRecognitionAvailable(context) }
+    var micGranted by remember {
+        mutableStateOf(context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+    }
+    val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        micGranted = granted
+        settings.setVoiceControl(granted)
+    }
 
     val notificationsAllowed =
         context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
@@ -69,6 +87,36 @@ fun SettingsScreen(onTextSize: () -> Unit, onSnooze: () -> Unit, onAutoSilence: 
                     secondaryLabel = { Text("$silence min, then marked missed") },
                 )
             }
+            item {
+                SwitchButton(
+                    checked = uppercase,
+                    onCheckedChange = settings::setUppercaseNames,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Capital letters") },
+                    secondaryLabel = { Text("Show alarm names in capitals") },
+                )
+            }
+            item {
+                SwitchButton(
+                    checked = voiceControl && micGranted,
+                    onCheckedChange = { on ->
+                        when {
+                            !on -> settings.setVoiceControl(false)
+                            micGranted -> settings.setVoiceControl(true)
+                            else -> micLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    },
+                    enabled = speechAvailable,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Voice control") },
+                    secondaryLabel = {
+                        Text(
+                            if (!speechAvailable) "No speech service on this watch"
+                            else "Say \"stop\" or \"snooze\" while ringing",
+                        )
+                    },
+                )
+            }
             item { ListHeader { Text("New alarm defaults") } }
             item {
                 SwitchButton(
@@ -84,6 +132,14 @@ fun SettingsScreen(onTextSize: () -> Unit, onSnooze: () -> Unit, onAutoSilence: 
                     onCheckedChange = settings::setDefaultSound,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Sound") },
+                )
+            }
+            item {
+                SwitchButton(
+                    checked = defaultRingUntilDismissed,
+                    onCheckedChange = settings::setDefaultRingUntilDismissed,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Ring until dismissed") },
                 )
             }
             item { ListHeader { Text("Status") } }

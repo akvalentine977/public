@@ -8,10 +8,18 @@ glasses and it stops at 15 alarms.
 
 - **Big alarm names.** A text-size setting (1x to 3x, on top of the system font size) applies to the
   alarm name in the list, in the editor and on the ringing screen. The ringing screen shows the name
-  in the biggest size with huge Dismiss and Snooze buttons.
+  in the biggest size with huge Dismiss and Snooze buttons. Names are shown in yellow on black and,
+  by default, in capital letters (switchable in Settings). "Appointment" is abbreviated to "appt"
+  automatically; the word list lives in `core/NameFormat.kt`.
 - **Unlimited alarms.** Alarms live in a local SQLite database (Room). There is no cap.
 - **Custom repeat rules.** Once, once on a specific date, every day, chosen days of the week, or every
   N days counted from a start date. Rules are computed in pure Kotlin and covered by unit tests.
+- **Per-alarm snooze and persistence.** Each alarm can have its own snooze length or use the app
+  default, and can be set to ring until dismissed instead of timing out.
+- **Voice control.** With the switch in Settings on (it asks for microphone permission), the ringing
+  screen listens with the watch's own speech recogniser: say "stop" or "snooze". It only listens while
+  the ringing screen is showing, so it pairs with the overlay grant below. Works best with
+  vibration-only alarms; an alarm tone playing at the same time makes recognition less reliable.
 - **Reliable firing.** Alarms are registered with `AlarmManager.setAlarmClock`, the highest-priority
   alarm type Android has. They are re-registered after reboot, time or time-zone changes and app
   updates, and every time the app is opened.
@@ -169,7 +177,8 @@ AlarmManager.setAlarmClock ──► AlarmReceiver ──► AlarmRingService (f
 Room (alarms.db) ◄──► AlarmRepository ◄──► AlarmActions ──► AlarmScheduler.rescheduleAll()
 ```
 
-- `core/` is pure Kotlin: `Alarm`, `Repeat`, `Schedule.nextTrigger()`, `Format`. Unit-tested.
+- `core/` is pure Kotlin: `Alarm`, `Repeat`, `Schedule.nextTrigger()`, `Format`, `NameFormat`
+  (abbreviations and capitals) and `VoiceCommands` (what counts as "stop" or "snooze"). Unit-tested.
 - Build: AGP 9 built-in Kotlin (no `kotlin-android` plugin), Compose compiler plugin matched to the
   bundled Kotlin version, KSP 2.3.x for Room (older KSP releases are incompatible with built-in
   Kotlin's source-set rules).
@@ -181,7 +190,12 @@ Room (alarms.db) ◄──► AlarmRepository ◄──► AlarmActions ──�
 
 Permissions: `USE_EXACT_ALARM` (granted automatically to alarm-clock apps on API 33+),
 `POST_NOTIFICATIONS`, `VIBRATE`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, foreground-service
-permissions, and the optional `SYSTEM_ALERT_WINDOW`. No network permission.
+permissions, the optional `SYSTEM_ALERT_WINDOW`, and `RECORD_AUDIO` only if voice control is turned
+on. No network permission. Speech recognition runs on the watch's own recogniser; the app itself
+sends nothing anywhere.
+
+Database schema changes are handled by Room migrations in `data/AlarmDatabase.kt`, so updates keep
+existing alarms.
 
 ## Known limitations and ideas
 
@@ -190,6 +204,8 @@ permissions, and the optional `SYSTEM_ALERT_WINDOW`. No network permission.
   Data Layer API; the standalone design leaves room for it.
 - No tile or watch-face complication yet. A tile showing the next alarm would be a natural addition.
 - The notification text uses the system font size. Only the app's own screens get the big text.
+- Voice control cannot be reached through Bixby or Google Assistant; third-party watch apps have no
+  hook into either. The in-app listener is the practical alternative.
 
 ## References
 

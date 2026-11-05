@@ -34,11 +34,18 @@ import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
 @Composable
-fun EditAlarmScreen(onName: () -> Unit, onTime: () -> Unit, onRepeat: () -> Unit, onDone: () -> Unit) {
+fun EditAlarmScreen(
+    onName: () -> Unit,
+    onTime: () -> Unit,
+    onRepeat: () -> Unit,
+    onSnooze: () -> Unit,
+    onDone: () -> Unit,
+) {
     val context = LocalContext.current
     val graph = context.appGraph
     val scope = rememberCoroutineScope()
     val draft by EditDraft.alarm.collectAsState()
+    val defaultSnooze by graph.settings.snoozeMinutes.collectAsState()
     val alarm = draft ?: run {
         LaunchedEffect(Unit) { onDone() }
         return
@@ -81,10 +88,11 @@ fun EditAlarmScreen(onName: () -> Unit, onTime: () -> Unit, onRepeat: () -> Unit
                     modifier = Modifier.fillMaxWidth(),
                     label = {
                         Text(
-                            alarm.displayName,
+                            alarmTitle(alarm),
                             fontSize = nameSize,
                             lineHeight = nameSize * 1.2f,
                             fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
                             maxLines = 6,
                         )
                     },
@@ -107,6 +115,25 @@ fun EditAlarmScreen(onName: () -> Unit, onTime: () -> Unit, onRepeat: () -> Unit
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(Format.repeat(alarm.repeat), maxLines = 3) },
                     secondaryLabel = { Text("Repeat") },
+                )
+            }
+
+            item {
+                Button(
+                    onClick = onSnooze,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(alarm.snoozeMinutes?.let { "$it min" } ?: "Default ($defaultSnooze min)") },
+                    secondaryLabel = { Text("Snooze") },
+                )
+            }
+
+            item {
+                SwitchButton(
+                    checked = alarm.ringUntilDismissed,
+                    onCheckedChange = { on -> EditDraft.update { it.copy(ringUntilDismissed = on) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Ring until dismissed") },
+                    secondaryLabel = { Text("Never times out") },
                 )
             }
 

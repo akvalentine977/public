@@ -56,7 +56,7 @@ fun AlarmListScreen(onAdd: () -> Unit, onEdit: (Long) -> Unit, onSettings: () ->
                     Button(
                         onClick = { context.startActivity(Intent(context, AlarmRingActivity::class.java)) },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Ringing: ${active.displayName}", fontWeight = FontWeight.Bold) },
+                        label = { Text("Ringing: ${alarmTitle(active)}", fontWeight = FontWeight.Bold) },
                     )
                 }
             }
@@ -108,10 +108,11 @@ private fun AlarmRow(alarm: Alarm, is24h: Boolean, onToggle: (Boolean) -> Unit, 
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
-                alarm.displayName,
+                alarmTitle(alarm),
                 fontSize = nameSize,
                 lineHeight = nameSize * 1.2f,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
                 maxLines = 6,
             )
         },

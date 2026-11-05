@@ -52,6 +52,10 @@ data class Alarm(
     /** Epoch millis of a pending snooze, or null. A snooze overrides the regular schedule. */
     val snoozedUntil: Long? = null,
     val createdAt: Long = 0,
+    /** Snooze length for this alarm, or null to use the app-wide default. */
+    val snoozeMinutes: Int? = null,
+    /** When true the alarm never times out; it rings until dismissed or snoozed. */
+    val ringUntilDismissed: Boolean = false,
 ) {
     val time: LocalTime get() = LocalTime.of(hour, minute)
 
