@@ -127,8 +127,11 @@ Not started here because it needs design choices the maintainer should see first
 
 ### What is left for you
 
-1. Install the Claude GitHub App for `akvalentine977/sawhorse` (https://github.com/apps/claude/installations/select_target)
-   if you want a cloud session to push branches; or push them yourself from the patches.
-2. Open the three pull requests with the text in `pr-descriptions.md`, and file the two issues from
-   `bug-reports/` (PR 1 and PR 2 fix them; link each PR to its issue).
+1. The branches are on the fork (pushed 2026-11-05 after the GitHub App was installed and GitHub reconnected):
+   `fix/desktop-discard-question`, `fix/save-as-extension`, `feat/back-left-bottom-views`, and `stack/all-three`.
+   Open the three pull requests with the text in `pr-descriptions.md`:
+   - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:fix/desktop-discard-question?expand=1
+   - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:fix/save-as-extension?expand=1
+   - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:feat/back-left-bottom-views?expand=1
+2. File the two issues from `bug-reports/` (PR 1 and PR 2 fix them; link each PR to its issue).
 3. Optionally take on #26 with the notes above.
