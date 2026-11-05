@@ -43,9 +43,9 @@ keyring and launches the app; `harness/shot.sh <run-name> <label>` screenshots; 
 | 10 | Open a file while the document has unsaved changes | done | Scripted experiment (harness/dirty-open-experiment.sh): Open on a clean document works ("Opened one.shz: 1 solid"). Open on a document with unsaved changes also goes straight through, with **no "Discard the unsaved changes?" prompt**, and the unsaved work is gone within a second. Cause found and written up in bug-reports/02: tauri-plugin-dialog overrides window.confirm with an async function, so the synchronous check sees a Promise (truthy); the app also lacks the dialog:allow-message capability, so no dialog appears. Affects all desktop platforms, not only Linux. Screenshots deb-alpha4-dirtyopen-*.png. Note: an earlier attempt looked like Open did nothing; that was GTK location-bar autocompletion garbling a typed path, fixed by pasting paths from the clipboard. |
 | 11 | Full Playwright e2e suite under Linux Chromium (145 tests incl. 203-file .skp corpus) | done | 137 passed, 8 skipped, 0 failed, 4 min 41 s with 3 workers (logs/e2e-linux-chromium.log). The skips are the private-fixture and render-service specs that need files or a service not in the repo. |
 | 12 | Build the Tauri desktop shell from source on Linux | done | `cargo build --locked` in src-tauri: 1 min 36 s after deps, binary 269 MB (debug). Not yet run. |
-| 13 | Run the from-source desktop build of `main` under Xvfb | in progress | A plain `cargo build` (dev profile) loads Tauri's devUrl (http://localhost:5173), not the embedded dist, so it shows "Could not connect to localhost" unless `npx vite --port 5173` is running. Rerunning the experiment with the dev server up. |
+| 13 | Run the from-source desktop build of `main` under Xvfb | done | A plain `cargo build` (dev profile) loads Tauri's devUrl (http://localhost:5173), not the embedded dist, so it shows "Could not connect to localhost" unless `npx vite --port 5173` is running. With the dev server up, `main` behaves exactly like alpha.4: modelling, save and reopen work; Open on a dirty document skips the prompt (screenshots/srcbuild-main-dirtyopen-montage-chips.png). |
 | 14 | Run the AppImage (extracted with unsquashfs, via AppRun) | done | Launches with its bundled WebKitGTK and GTK (confirmed from /proc/<pid>/maps), its own WebKitWebProcess, WebGL2 viewport renders, a board extrudes correctly. The kernel took noticeably longer to load than from the .deb (first keystrokes at 6 s landed on "Kernel loading…"; fine at 25 s). Screenshot appimage-alpha4-board.png. | Checks the bundled WebKitGTK path, which is what most users will double-click. |
-| 15 | Write the findings up; file bug reports upstream | not started | Drafts live in bug-reports/. Filing needs a GitHub login; the cloud session had no write access to upstream. |
+| 15 | Write the findings up; file bug reports upstream | write-up done, filing left for you | REPORT.md has the findings; bug-reports/01 and 02 are ready to paste. Filing needs your GitHub login; the cloud session had no write access to upstream. |
 
 ## Findings so far
 
@@ -63,3 +63,16 @@ Ubuntu 24.04.5, glibc 2.39, WebKitGTK 2.52.6, Mesa 25.2.8 llvmpipe under Xvfb 14
 Rust 1.97.0, Node 22.23.4, npm 10.9.9, wasm-pack 0.15.0, Playwright 1.63.0 (pinned with
 `npm install --no-save @playwright/test@1.63.0 playwright@1.63.0` because the 1.64 browser download was blocked;
 the lockfile was left untouched).
+
+## Next steps for a local session
+
+1. File the two issues at https://github.com/sawhorse3d/sawhorse/issues/new from `bug-reports/01-*.md` and
+   `bug-reports/02-*.md` (paste as is; attach the screenshots named in each). Mention the upstream commit
+   `bf2c9f0` for the `main` reproduction.
+2. Optional, if you want a pull request instead of a report: both fixes are small and described in the drafts
+   (`src/io/files.ts` for 01; `src/App.tsx` confirmDiscard plus `src-tauri/capabilities/default.json` for 02).
+   Follow the project's conventions: a changelog entry under `## [Unreleased]`, tests, and messages that read as
+   sentences (see docs/DEVELOPMENT.md and recent commits).
+3. On your real desktop: install the .deb or run the AppImage, check hardware WebGL and Wayland, which the
+   cloud box could not. If the window is blank, try `WEBKIT_DISABLE_DMABUF_RENDERER=1`.
+4. Nothing from this session needs cleaning up upstream; everything lives in this folder.
