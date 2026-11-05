@@ -76,3 +76,22 @@ the lockfile was left untouched).
 3. On your real desktop: install the .deb or run the AppImage, check hardware WebGL and Wayland, which the
    cloud box could not. If the window is blank, try `WEBKIT_DISABLE_DMABUF_RENDERER=1`.
 4. Nothing from this session needs cleaning up upstream; everything lives in this folder.
+
+## Phase 2: contributions (started 2026-11-05, after the testing)
+
+The fork is `akvalentine977/sawhorse`. The cloud session could not push to it (Claude's GitHub App is not
+installed for that repository), so every finished change is also exported as a patch in `patches/`, made with
+`git format-patch` against upstream `main` at `bf2c9f0`. To use one locally:
+
+```bash
+cd sawhorse && git fetch origin && git checkout -b <branch> origin/main
+git am path/to/public/projects/sawhorse-linux-testing/patches/0001-*.patch
+git push -u <your-fork> <branch>     # then open the pull request against sawhorse3d/sawhorse
+```
+
+| # | Change | Branch | Status |
+|---|--------|--------|--------|
+| P1 | Desktop app waits for the "Discard the unsaved changes?" answer (bug-reports/02) | fix/desktop-discard-question | done: commit 20a858a, patches/0001; typecheck, vitest and e2e files.spec green; the new e2e test fails without the fix |
+| P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | in progress |
+| P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | not started |
+| P4 | Issue #26, metric stock library and labels | | not started, only if time remains |
