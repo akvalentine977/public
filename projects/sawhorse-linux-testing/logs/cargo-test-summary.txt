@@ -1,0 +1,111 @@
+# cargo test --workspace (crates/), Linux x86-64, Rust 1.97, debug profile
+
+suites: 56  passed: 604  failed: 0  ignored: 3
+real	5m54.937s
+
+## per-binary results
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_export-5e14e48d60f01460)
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+     Running tests/drawings.rs (target/debug/deps/drawings-a3cacf83d6a21d6f)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_import-7260e3b9568115b4)
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/limits.rs (target/debug/deps/limits-d4751c296c8ba99b)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.94s
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_inference-75904f6c9d0c9a5b)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/infer.rs (target/debug/deps/infer-77301a83b74eca5d)
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/perf.rs (target/debug/deps/perf-74b613fda664f4c0)
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/sections.rs (target/debug/deps/sections-24db288797bb931b)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_kernel-cca40beff16cd2e0)
+test result: ok. 157 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+     Running tests/annotations.rs (target/debug/deps/annotations-60e1bba5fb38a1c4)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/booleans.rs (target/debug/deps/booleans-de74ec166c96efc3)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running tests/curve_props.rs (target/debug/deps/curve_props-fb7fa33bbfb0d279)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.03s
+     Running tests/curves.rs (target/debug/deps/curves-2624a57732872455)
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+     Running tests/cutlist.rs (target/debug/deps/cutlist-e95953c3f6a4140f)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running tests/cutlist_nonsolid.rs (target/debug/deps/cutlist_nonsolid-9244b32c51ede0e5)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/draw.rs (target/debug/deps/draw-62528d59ca5e9d41)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/edges.rs (target/debug/deps/edges-87e6e48b66272d71)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/erase.rs (target/debug/deps/erase-b0869cb36384a00f)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/face_ids.rs (target/debug/deps/face_ids-d31c59e0664c8bdf)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+     Running tests/face_props.rs (target/debug/deps/face_props-c43af75ec3d671c7)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+     Running tests/follow_me.rs (target/debug/deps/follow_me-738aeb73fec2d905)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/golden.rs (target/debug/deps/golden-9d1b52f553efcb46)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+     Running tests/import.rs (target/debug/deps/import-b2f89a595fca9ba7)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/import_curves.rs (target/debug/deps/import_curves-8507bf77c9bd4459)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/imprint_tolerance.rs (target/debug/deps/imprint_tolerance-08f0a56d09036b7b)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/invariants.rs (target/debug/deps/invariants-92988474dc4f6704)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+     Running tests/limits.rs (target/debug/deps/limits-06835d410b89f8fc)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+     Running tests/looks.rs (target/debug/deps/looks-a915103ad7d9ab10)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/naming.rs (target/debug/deps/naming-4188827aff917921)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/nesting.rs (target/debug/deps/nesting-7f30d4fe0c523118)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/offset.rs (target/debug/deps/offset-77524738a3bc1560)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/push.rs (target/debug/deps/push-3fbd9b2c030a1617)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+     Running tests/refbatch.rs (target/debug/deps/refbatch-b4d86f022de9b237)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/repro.rs (target/debug/deps/repro-5252629308be3602)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+     Running tests/scene_grid.rs (target/debug/deps/scene_grid-7a35247febf19683)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/section_perf.rs (target/debug/deps/section_perf-02ef0902072dd8ae)
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/section_props.rs (target/debug/deps/section_props-10d7321060c95c2c)
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.70s
+     Running tests/sections.rs (target/debug/deps/sections-f041cfac8a12e87c)
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/sequences.rs (target/debug/deps/sequences-d2ce86f57c637689)
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.63s
+     Running tests/sheets.rs (target/debug/deps/sheets-00ce006a75c87df0)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running tests/sketch_move.rs (target/debug/deps/sketch_move-4170eefc8f0aead5)
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+     Running tests/sketch_move_props.rs (target/debug/deps/sketch_move_props-5d8e8cc05927d0b5)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.36s
+     Running tests/sketch_props.rs (target/debug/deps/sketch_props-16c14ef2e8d7d996)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+     Running tests/structure.rs (target/debug/deps/structure-366b677ea3ec6956)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/structure_props.rs (target/debug/deps/structure_props-dd0d05d0ddc78f71)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/transforms.rs (target/debug/deps/transforms-59cbd3b4d9e690f1)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_shz-0557ed8f7fb5a28f)
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.52s
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_tessellate-ac908471d5101ce7)
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running unittests src/lib.rs (target/debug/deps/sawhorse_wasm-db6841450be7136c)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

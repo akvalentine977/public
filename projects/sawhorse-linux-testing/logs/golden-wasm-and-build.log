@@ -1,0 +1,33 @@
+### golden:wasm
+ok   push_tilted_boolean.json wasm de38ab0e388a1563  native de38ab0e388a1563  cut list 206f2d6e6c9fadfa  nesting 718cc47e01d91248
+ok   section.json             wasm 745bb1392b79e27c  native 745bb1392b79e27c  cut list 0a172a5011a79a49  nesting d14d0664a6dfd660  sections ce03808fc8484b3b,05ffdbf92ab8bcff
+ok   shared_edge.json         wasm ce7e4b0acf6f6002  native ce7e4b0acf6f6002  cut list 4cc7592dcd37ca84  nesting 43d998b520f4a509
+ok   sheet.json               wasm 5d91d273e0d0e66e  native 5d91d273e0d0e66e  cut list 0a172a5011a79a49  nesting d14d0664a6dfd660  sections ce03808fc8484b3b,05ffdbf92ab8bcff  sheets 3ba75916b51d1ea1
+ok   sketch_crossings.json    wasm a061d73d335934e0  native a061d73d335934e0  cut list 7e475c8cc9735f19  nesting 718cc47e01d91248
+ok   sketch_move.json         wasm e2b01e56ffda07c2  native e2b01e56ffda07c2  cut list 1dedd1871fce2bbc  nesting 3c61987cec0316d2
+ok   spike_box.json           wasm c277eb322211b621  native c277eb322211b621  cut list 7c51c2efc8550e96  nesting 718cc47e01d91248
+ok   tilted_sketch.json       wasm 95281491338454a7  native 95281491338454a7  cut list ba77813b18b46c21  nesting 718cc47e01d91248
+ok   transforms.json          wasm 1bf9b5a4e38028e5  native 1bf9b5a4e38028e5  cut list b7c41421b383aaef  nesting 3ed7901aff356552
+ok   tube.json                wasm e7419b20319912a0  native e7419b20319912a0  cut list 652b054033e3f93c  nesting 718cc47e01d91248
+kernel 0.1.0-alpha.4: WASM matches native goldens
+
+real	0m0.421s
+user	0m0.990s
+sys	0m0.076s
+### build
+dist/assets/dist-js-DVX3aahl.js                                         6.90 kB │ gzip:     1.78 kB
+dist/assets/index-CiKDN_fD.js                                       1,463.16 kB │ gzip:   431.77 kB
+
+✓ built in 570ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 1024 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+check-provenance: ok, 83 files in dist: no source maps, no SketchUp document bytes
+check-test-hooks: dist has no test hooks
+
+real	0m9.272s
+user	0m17.629s
+sys	0m0.987s
+exit=0

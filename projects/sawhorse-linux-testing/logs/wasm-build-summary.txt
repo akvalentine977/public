@@ -1,0 +1,3 @@
+[wasm] wasm-pack build crates/wasm-api --target web --out-dir ../../src/wasm/pkg --out-name sawhorse_wasm --no-pack --release
+[wasm] ok: src/wasm/pkg/sawhorse_wasm_bg.wasm
+real	4m32.338s

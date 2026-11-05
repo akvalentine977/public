@@ -1,0 +1,22 @@
+
+ RUN  v5.0.3 /tmp/claude-0/-home-user-public/18f43fde-9c09-5f02-9a39-df9132ed69d4/scratchpad/sawhorse-src/sawhorse
+
+···················-······································································································································································································stdout | src/viewport/navmath.test.ts > orbit about a picked pivot > keeps the pivot's projection identical (to 1e-9 in NDC) for any angle, in both projections
+[navmath] pivot pinned: worst NDC drift over 2000 random orbits = 6.25e-15
+
+········································································································································································································································································································································································································································-····················································································································································
+
+ Test Files  77 passed | 1 skipped (78)
+      Tests  789 passed | 2 skipped (791)
+   Start at  03:39:19
+   Duration  34.72s (environment 56%, tests 32%, import 5%, transform 4%, setup 2%)
+
+Environment  jsdom was created 78 times · 51.86s total, 56% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+real	0m35.226s
+user	1m13.180s
+sys	0m9.440s
+exit=0

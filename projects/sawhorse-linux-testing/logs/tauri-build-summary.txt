@@ -1,0 +1,6 @@
+# src-tauri: cargo build --locked (dev profile), Linux, webkit2gtk 2.52.6
+   Compiling sawhorse-desktop v0.1.0-alpha.4 (/tmp/claude-0/-home-user-public/18f43fde-9c09-5f02-9a39-df9132ed69d4/scratchpad/sawhorse-src/sawhorse/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 36s
+real	1m36.259s
+exit=0
+-rwxr-xr-x 2 root root 269017040 Nov  5 03:40 target/debug/sawhorse-desktop
