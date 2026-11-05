@@ -70,6 +70,7 @@ object Routes {
     const val SETTINGS_TEXT = "settings/text"
     const val SETTINGS_SNOOZE = "settings/snooze"
     const val SETTINGS_SILENCE = "settings/silence"
+    const val SETTINGS_VOICE_TEST = "settings/voice-test"
 }
 
 @Composable
@@ -139,8 +140,10 @@ fun BigAlarmNavHost() {
                 onTextSize = { navController.navigate(Routes.SETTINGS_TEXT) },
                 onSnooze = { navController.navigate(Routes.SETTINGS_SNOOZE) },
                 onAutoSilence = { navController.navigate(Routes.SETTINGS_SILENCE) },
+                onVoiceTest = { navController.navigate(Routes.SETTINGS_VOICE_TEST) },
             )
         }
+        composable(Routes.SETTINGS_VOICE_TEST) { VoiceTestScreen() }
         composable(Routes.SETTINGS_TEXT) { TextSizeScreen() }
         composable(Routes.SETTINGS_SNOOZE) { SnoozeMinutesScreen() }
         composable(Routes.SETTINGS_SILENCE) { AutoSilenceScreen() }

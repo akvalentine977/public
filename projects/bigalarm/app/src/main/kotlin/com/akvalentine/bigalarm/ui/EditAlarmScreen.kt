@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
@@ -83,7 +82,7 @@ fun EditAlarmScreen(
             item { ListHeader { Text(if (alarm.id == 0L) "New alarm" else "Edit alarm") } }
 
             item {
-                Button(
+                FilledTonalButton(
                     onClick = onName,
                     modifier = Modifier.fillMaxWidth(),
                     label = {
@@ -101,7 +100,7 @@ fun EditAlarmScreen(
             }
 
             item {
-                Button(
+                FilledTonalButton(
                     onClick = onTime,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(Format.time(alarm.hour, alarm.minute, is24h), fontSize = 24.sp) },
@@ -110,7 +109,7 @@ fun EditAlarmScreen(
             }
 
             item {
-                Button(
+                FilledTonalButton(
                     onClick = onRepeat,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(Format.repeat(alarm.repeat), maxLines = 3) },
@@ -119,7 +118,7 @@ fun EditAlarmScreen(
             }
 
             item {
-                Button(
+                FilledTonalButton(
                     onClick = onSnooze,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(alarm.snoozeMinutes?.let { "$it min" } ?: "Default ($defaultSnooze min)") },

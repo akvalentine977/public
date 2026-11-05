@@ -4,12 +4,14 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings as AndroidSettings
+import android.speech.RecognitionService
 import android.speech.SpeechRecognizer
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,8 +24,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
@@ -34,7 +38,7 @@ import com.akvalentine.bigalarm.appGraph
 import com.akvalentine.bigalarm.data.Settings
 
 @Composable
-fun SettingsScreen(onTextSize: () -> Unit, onSnooze: () -> Unit, onAutoSilence: () -> Unit) {
+fun SettingsScreen(onTextSize: () -> Unit, onSnooze: () -> Unit, onAutoSilence: () -> Unit, onVoiceTest: () -> Unit) {
     val context = LocalContext.current
     val settings = context.appGraph.settings
     val scale by settings.textScale.collectAsState()
@@ -115,6 +119,14 @@ fun SettingsScreen(onTextSize: () -> Unit, onSnooze: () -> Unit, onAutoSilence: 
                             else "Say \"stop\" or \"snooze\" while ringing",
                         )
                     },
+                )
+            }
+            item {
+                FilledTonalButton(
+                    onClick = onVoiceTest,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Test voice control") },
+                    secondaryLabel = { Text("Shows what the watch hears") },
                 )
             }
             item { ListHeader { Text("New alarm defaults") } }
@@ -205,4 +217,74 @@ fun AutoSilenceScreen() {
     val settings = LocalContext.current.appGraph.settings
     val value by settings.autoSilenceMinutes.collectAsState()
     MinutesStepperScreen(title = "Ring for", value = value, range = 1..30, onChange = settings::setAutoSilenceMinutes)
+}
+
+/** Diagnostic screen: which speech services exist, and what the recogniser hears right now. */
+@Composable
+fun VoiceTestScreen() {
+    val context = LocalContext.current
+    var micGranted by remember {
+        mutableStateOf(context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+    }
+    val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { micGranted = it }
+    var history by remember { mutableStateOf(listOf("Starting")) }
+    val listState = rememberTransformingLazyColumnState()
+
+    val services = remember {
+        context.packageManager
+            .queryIntentServices(Intent(RecognitionService.SERVICE_INTERFACE), PackageManager.ResolveInfoFlags.of(0))
+            .map { it.serviceInfo.packageName }
+            .distinct()
+    }
+    val defaultService = remember {
+        AndroidSettings.Secure.getString(context.contentResolver, "voice_recognition_service") ?: "(none set)"
+    }
+    val onDevice = remember { SpeechRecognizer.isOnDeviceRecognitionAvailable(context) }
+
+    DisposableEffect(micGranted) {
+        val listener = if (micGranted) {
+            VoiceCommandListener(
+                context = context,
+                onCommand = { history = (listOf("COMMAND: ${it.name}") + history).take(8) },
+                onStatus = { history = (listOf(it) + history).take(8) },
+                stopOnCommand = false,
+            ).also { it.start() }
+        } else {
+            null
+        }
+        onDispose { listener?.stop() }
+    }
+
+    ScreenScaffold(scrollState = listState) { contentPadding ->
+        TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
+            item { ListHeader { Text("Voice test") } }
+            if (!micGranted) {
+                item {
+                    Button(
+                        onClick = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Grant microphone") },
+                    )
+                }
+            }
+            items(history.withIndex().toList(), key = { it.index }) { (_, line) ->
+                Text(line, modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), fontSize = 13.sp, maxLines = 4)
+            }
+            item { ListHeader { Text("Speech services") } }
+            item {
+                Text(
+                    buildString {
+                        append("Default: ").append(defaultService).append('\n')
+                        append("On-device available: ").append(if (onDevice) "yes" else "no").append('\n')
+                        append("Installed: ")
+                        append(if (services.isEmpty()) "none" else services.joinToString(", "))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 12.sp,
+                    maxLines = 12,
+                )
+            }
+        }
+    }
 }

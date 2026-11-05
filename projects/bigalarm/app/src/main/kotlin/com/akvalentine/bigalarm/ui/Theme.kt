@@ -25,11 +25,11 @@ val LocalUppercaseNames = compositionLocalOf { true }
 
 /** Yellow on black: high contrast and easy on tired eyes. Surfaces keep the Material defaults. */
 val YellowColorScheme = ColorScheme(
-    primary = Color(0xFFFFD60A),
-    primaryDim = Color(0xFFE0BB00),
-    primaryContainer = Color(0xFF5A4A00),
-    onPrimary = Color(0xFF1A1500),
-    onPrimaryContainer = Color(0xFFFFE97A),
+    primary = Color(0xFFF5F540),
+    primaryDim = Color(0xFFD4D42A),
+    primaryContainer = Color(0xFF50500A),
+    onPrimary = Color(0xFF1A1A00),
+    onPrimaryContainer = Color(0xFFF5F540),
     secondary = Color(0xFFE6D08A),
     secondaryDim = Color(0xFFC9B46E),
     secondaryContainer = Color(0xFF4A4120),

@@ -93,6 +93,7 @@ class AlarmRingActivity : ComponentActivity() {
             return
         }
         if (RingingState.current.value == null) return
+        voiceStatus = "Voice: starting"
         voice = VoiceCommandListener(
             context = this,
             onCommand = { command ->
@@ -130,6 +131,17 @@ fun RingScreen(alarm: Alarm, queued: Int, voiceStatus: String?, onDismiss: () ->
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
+            if (voiceStatus != null) {
+                Text(
+                    voiceStatus,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
+                    maxLines = 2,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
             Spacer(Modifier.height(6.dp))
             Text(
                 alarmTitle(alarm),
@@ -161,16 +173,6 @@ fun RingScreen(alarm: Alarm, queued: Int, voiceStatus: String?, onDismiss: () ->
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 label = { Text("Snooze $snoozeMinutes min", fontSize = 18.sp) },
             )
-            if (voiceStatus != null) {
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    voiceStatus,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    fontSize = 13.sp,
-                    maxLines = 3,
-                )
-            }
             Spacer(Modifier.height(24.dp))
         }
     }

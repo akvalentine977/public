@@ -20,6 +20,9 @@ glasses and it stops at 15 alarms.
   screen listens with the watch's own speech recogniser: say "stop" or "snooze". It only listens while
   the ringing screen is showing, so it pairs with the overlay grant below. Works best with
   vibration-only alarms; an alarm tone playing at the same time makes recognition less reliable.
+  The status line under the time on the ringing screen says what the recogniser is doing, and
+  Settings has a "Test voice control" screen that lists the watch's speech services and shows what
+  it hears. Recognisers are tried in order: on-device, default preferring offline, default online.
 - **Reliable firing.** Alarms are registered with `AlarmManager.setAlarmClock`, the highest-priority
   alarm type Android has. They are re-registered after reboot, time or time-zone changes and app
   updates, and every time the app is opened.
