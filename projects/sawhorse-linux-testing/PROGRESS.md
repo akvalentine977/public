@@ -95,7 +95,7 @@ git push -u <your-fork> <branch>     # then open the pull request against sawhor
 | P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | done: patches/0002; typecheck, vitest, safe-save tests, shell clippy and fmt green |
 | P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | done: patches/0003; typecheck, full vitest (789) and e2e navigation.spec green |
 | P4 | Issue #26, metric stock library and labels | | not started; hand-off notes below |
-| P5 | Headless `sawhorse-cli cutlist` / `nest` for issue #14 | feat/cli-cutlist | done: patches/0004, pushed to the fork; 5 tests, clippy, fmt and the wasm32 check green; smoke-tested on a file the alpha.4 app saved. PR text under "PR 4" in pr-descriptions.md |
+| P5 | Headless `sawhorse-cli cutlist` / `nest` for issue #14 | feat/cli-cutlist | done: patches/0004, pushed to the fork; 5 tests, clippy, fmt and the wasm32 check green; smoke-tested on a file the alpha.4 app saved. opened as sawhorse3d/sawhorse#33 (Refs #14) |
 
 ### The three changes together
 
@@ -134,5 +134,5 @@ Not started here because it needs design choices the maintainer should see first
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:fix/desktop-discard-question?expand=1
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:fix/save-as-extension?expand=1
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:feat/back-left-bottom-views?expand=1
-2. Done 2026-11-05: pull requests sawhorse3d/sawhorse#28 (discard question), #29 (Save As extension), #30 (Back, Left, Bottom views); issues #31 (Save As, fixed by #29) and #32 (discard question, fixed by #28). Add `Fixes #32` to #28 and `Fixes #31` to #29 so GitHub closes them on merge, then watch the PRs for maintainer comments and CI.
+2. Done 2026-11-05: pull requests sawhorse3d/sawhorse#28 (discard question), #29 (Save As extension), #30 (Back, Left, Bottom views), #33 (headless cut list CLI); issues #31 (Save As, fixed by #29) and #32 (discard question, fixed by #28). Add `Fixes #32` to #28 and `Fixes #31` to #29 so GitHub closes them on merge, then watch the PRs for maintainer comments and CI.
 3. Optionally take on #26 with the notes above.
