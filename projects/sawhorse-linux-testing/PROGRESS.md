@@ -133,5 +133,5 @@ Not started here because it needs design choices the maintainer should see first
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:fix/desktop-discard-question?expand=1
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:fix/save-as-extension?expand=1
    - https://github.com/sawhorse3d/sawhorse/compare/main...akvalentine977:sawhorse:feat/back-left-bottom-views?expand=1
-2. File the two issues from `bug-reports/` (PR 1 and PR 2 fix them; link each PR to its issue).
+2. Done 2026-11-05: pull requests sawhorse3d/sawhorse#28 (discard question), #29 (Save As extension), #30 (Back, Left, Bottom views); issues #31 (Save As, fixed by #29) and #32 (discard question, fixed by #28). Add `Fixes #32` to #28 and `Fixes #31` to #29 so GitHub closes them on merge, then watch the PRs for maintainer comments and CI.
 3. Optionally take on #26 with the notes above.
