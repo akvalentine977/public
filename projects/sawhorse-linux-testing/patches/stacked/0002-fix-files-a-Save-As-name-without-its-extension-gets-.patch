@@ -1,0 +1,244 @@
+From e29a71c497a2de3826c9da6edc467dfd7171c7f1 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 5 Nov 2026 05:32:00 +0000
+Subject: [PATCH 2/3] fix(files): a Save As name without its extension gets it
+
+On Linux the desktop's Save dialog (GTK's file chooser) hands the name
+back as typed: "cabinet" was saved as "cabinet", a valid document the
+Open dialog's "Supported files" filter then hid. Windows and macOS add
+the filter's extension in the dialog, so only Linux saw it. A name
+without one of the type's extensions now gets the type's first
+(withExtension: cabinet -> cabinet.shz, cabinet.v2 -> cabinet.v2.shz,
+part -> part.stl; Cabinet.SHZ stays). The shell accepts such a path as
+the chosen one less its added extension (without_added_extension in
+sawhorse-safe-save) and then allows it by its full name, so the saves
+and reads that follow go by it.
+
+Tests: save.test.ts (the dialog's name with and without the extension,
+in either case; a cancelled dialog; a second save to the handle's
+path), safe-save (the chosen path less its added extension; none to
+take off).
+
+Found on Linux (the 0.1.0-alpha.4 .deb) by scripting the app under Xvfb.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01DaoaGXWjtprTCuXM54m2KR
+---
+ CHANGELOG.md                   |  4 ++
+ src-tauri/safe-save/src/lib.rs | 37 +++++++++++++++++
+ src-tauri/src/lib.rs           | 12 +++++-
+ src/io/files.ts                | 13 ++++++
+ src/io/save.test.ts            | 75 ++++++++++++++++++++++++++++++++++
+ 5 files changed, 139 insertions(+), 2 deletions(-)
+ create mode 100644 src/io/save.test.ts
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 4df9ab5..104febc 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,10 @@ All notable changes to Sawhorse are recorded here. The format follows [Keep a Ch
+ 
+ ## [Unreleased]
+ 
++### Fixed (Linux: a Save As name without its extension gets it, 2026-11-05)
++
++- **A file saved without typing `.shz` is saved as `.shz`.** On Linux the desktop app's Save dialog (GTK's file chooser) hands the name back exactly as typed: `cabinet` stayed `cabinet`, a valid document the Open dialog's "Supported files" filter then hid. Windows and macOS add the filter's extension in the dialog itself, so only Linux saw it. A name without one of the type's extensions now gets the type's first (`cabinet` to `cabinet.shz`, `cabinet.v2` to `cabinet.v2.shz`, for exports too: `part` to `part.stl`; `Cabinet.SHZ` stays), and the shell accepts the path as the chosen one less its added extension, then allows it by its full name for the saves and reads that follow (`withExtension` in `src/io/files.ts`; `save_file_atomic` in `src-tauri/src/lib.rs`; `without_added_extension` in `sawhorse-safe-save`). Found on Linux (the 0.1.0-alpha.4 .deb) by scripting the app under Xvfb.
++- Tests: vitest (`src/io/save.test.ts`: the dialog's name with and without the extension, in either case, a cancelled dialog, a second save to the handle's path); `src-tauri/safe-save` (the chosen path less its added extension; none to take off).
+ ### Fixed (the desktop app waits for the discard question, 2026-11-05)
+ 
+ - **The desktop app asks before throwing away unsaved changes.** In the Windows, macOS and Linux app, File > Open and File > New replaced a model that had unsaved changes at once, and "Discard the unsaved changes to this model?" was never seen. The dialog plugin gives the desktop's `window.confirm` back as a Promise (a yes whatever the answer, to code that does not wait), and the app did not wait; the shell had also never granted the plugin's message permission, so the dialog could not have shown. The question now goes through the dialog plugin on the desktop (`askYesNo` in `src/io/files.ts`, with the app's name on the dialog) and is awaited wherever it is asked: Open, New, and an empty SketchUp file opening as a new model. The browser build asks as before. `src-tauri/capabilities/default.json` grants `dialog:allow-message`. Found on Linux (the 0.1.0-alpha.4 .deb and AppImage, and `main`) by scripting the app under Xvfb.
+diff --git a/src-tauri/safe-save/src/lib.rs b/src-tauri/safe-save/src/lib.rs
+index 8f09a36..d1e3f7f 100644
+--- a/src-tauri/safe-save/src/lib.rs
++++ b/src-tauri/safe-save/src/lib.rs
+@@ -85,6 +85,15 @@ pub fn write_atomic(path: &Path, bytes: &[u8]) -> Result<(), SaveError> {
+     result
+ }
+ 
++/// The path a Save dialog returned when the page put the file type's extension on it
++/// (GTK's chooser hands the name back as typed, without one; Windows and macOS add the
++/// filter's): `path` less its last extension, `cabinet.shz` to `cabinet` and
++/// `cabinet.v2.shz` to `cabinet.v2`. None when there is no extension to take off.
++pub fn without_added_extension(path: &Path) -> Option<PathBuf> {
++    path.extension()?;
++    Some(path.with_extension(""))
++}
++
+ /// Percent-decode a path sent from the webview in a header (`encodeURIComponent`).
+ pub fn percent_decode(s: &str) -> Option<String> {
+     let b = s.as_bytes();
+@@ -154,3 +163,31 @@ mod tests {
+         assert!(siblings(Path::new("/")).is_err());
+     }
+ }
++
++#[cfg(test)]
++mod added_extension {
++    use super::without_added_extension;
++    use std::path::{Path, PathBuf};
++
++    #[test]
++    fn the_chosen_path_is_the_saved_one_less_its_added_extension() {
++        assert_eq!(
++            without_added_extension(Path::new("/home/me/cabinet.shz")),
++            Some(PathBuf::from("/home/me/cabinet"))
++        );
++        assert_eq!(
++            without_added_extension(Path::new("/home/me/cabinet.v2.shz")),
++            Some(PathBuf::from("/home/me/cabinet.v2"))
++        );
++        assert_eq!(
++            without_added_extension(Path::new("/home/me/Cabinet.SHZ")),
++            Some(PathBuf::from("/home/me/Cabinet"))
++        );
++    }
++
++    #[test]
++    fn a_name_without_an_extension_has_none_to_take_off() {
++        assert_eq!(without_added_extension(Path::new("/home/me/cabinet")), None);
++        assert_eq!(without_added_extension(Path::new("/home/me/.shz")), None);
++    }
++}
+diff --git a/src-tauri/src/lib.rs b/src-tauri/src/lib.rs
+index c59e888..250ae69 100644
+--- a/src-tauri/src/lib.rs
++++ b/src-tauri/src/lib.rs
+@@ -98,13 +98,21 @@ fn save_file_atomic(app: AppHandle, request: tauri::ipc::Request<'_>) -> Result<
+         .and_then(sawhorse_safe_save::percent_decode)
+         .ok_or("save_file_atomic needs the path in its x-path header")?;
+     let path = std::path::PathBuf::from(path);
+-    if !app.fs_scope().is_allowed(&path) {
++    let scope = app.fs_scope();
++    // The page puts the file type's extension on a name the dialog returned without one
++    // (GTK's chooser hands the name back as typed; Windows and macOS add the filter's), so
++    // the path the person chose may be this one less its last extension.
++    let chosen = sawhorse_safe_save::without_added_extension(&path);
++    if !scope.is_allowed(&path) && !chosen.as_deref().is_some_and(|c| scope.is_allowed(c)) {
+         return Err(format!(
+             "{} was not chosen in a Save dialog",
+             path.display()
+         ));
+     }
+-    sawhorse_safe_save::write_atomic(&path, bytes).map_err(|e| e.to_string())
++    sawhorse_safe_save::write_atomic(&path, bytes).map_err(|e| e.to_string())?;
++    // The file is now the one chosen: later saves and reads go by its full name.
++    let _ = scope.allow_file(&path);
++    Ok(())
+ }
+ 
+ #[cfg_attr(mobile, tauri::mobile_entry_point)]
+diff --git a/src/io/files.ts b/src/io/files.ts
+index 1ad2725..6abc49e 100644
+--- a/src/io/files.ts
++++ b/src/io/files.ts
+@@ -81,6 +81,16 @@ export function baseName(path: string): string {
+   return path.replace(/^.*[\\/]/, "");
+ }
+ 
++/**
++ * `path` with one of `type`'s extensions: as it is when it already ends in one (any case),
++ * else with the first appended. The desktop's Save dialog hands the name back as typed on
++ * Linux (GTK's chooser adds no extension; Windows and macOS add the filter's), and a file
++ * saved without one is then hidden by the Open dialog's filter.
++ */
++export function withExtension(path: string, type: FileType): string {
++  return type.extensions.includes(extensionOf(path)) ? path : `${path}${type.extensions[0]}`;
++}
++
+ /** The name without its extension. */
+ export function stem(name: string): string {
+   return baseName(name).replace(/\.[^.]*$/, "") || "Untitled";
+@@ -257,6 +267,9 @@ export async function saveFile(name: string, bytes: Uint8Array, type: FileType,
+       const { save } = await import("@tauri-apps/plugin-dialog");
+       path = await save({ defaultPath: name, filters: [{ name: type.description, extensions: type.extensions.map((e) => e.slice(1)) }] });
+       if (!path || signal?.aborted) return null;
++      // A name typed without the extension gets it (the shell then allows the path, as the
++      // one chosen less its added extension: src-tauri/src/lib.rs, save_file_atomic).
++      path = withExtension(path, type);
+     }
+     // Lane 16: written beside, synced, read back, then renamed over the file (the previous
+     // one kept as .bak), never truncated in place (src-tauri/safe-save).
+diff --git a/src/io/save.test.ts b/src/io/save.test.ts
+new file mode 100644
+index 0000000..fb0a3c3
+--- /dev/null
++++ b/src/io/save.test.ts
+@@ -0,0 +1,75 @@
++// The desktop's Save dialog hands the name back as typed on Linux (GTK's chooser adds no
++// extension; Windows and macOS add the filter's). A name without the type's extension gets
++// it before the file is written, so the Open dialog's filter finds it again.
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import { type FileType, saveFile, SHZ, withExtension } from "./files";
++
++/** An export type, as the STL exporter names it. */
++const STL: FileType = { description: "STL", mime: "model/stl", extensions: [".stl"] };
++
++const dialog = vi.hoisted(() => ({ save: vi.fn<() => Promise<string | null>>() }));
++const core = vi.hoisted(() => ({ invoke: vi.fn<(cmd: string, body: unknown, opts: { headers: Record<string, string> }) => Promise<void>>() }));
++vi.mock("@tauri-apps/plugin-dialog", () => dialog);
++vi.mock("@tauri-apps/api/core", () => core);
++
++describe("withExtension", () => {
++  it("leaves a name that has one of the type's extensions, in any case", () => {
++    expect(withExtension("/home/me/cabinet.shz", SHZ)).toBe("/home/me/cabinet.shz");
++    expect(withExtension("C:\\Models\\Cabinet.SHZ", SHZ)).toBe("C:\\Models\\Cabinet.SHZ");
++    expect(withExtension("/home/me/part.stl", STL)).toBe("/home/me/part.stl");
++  });
++
++  it("appends the type's first extension to a name without one, or with another", () => {
++    expect(withExtension("/home/me/cabinet", SHZ)).toBe("/home/me/cabinet.shz");
++    expect(withExtension("/home/me/cabinet.v2", SHZ)).toBe("/home/me/cabinet.v2.shz");
++    expect(withExtension("/home/me/part", STL)).toBe("/home/me/part.stl");
++  });
++});
++
++describe("saving in the desktop app", () => {
++  const w = window as unknown as Record<string, unknown>;
++  const bytes = new Uint8Array([80, 75, 3, 4]);
++  beforeEach(() => {
++    w.__TAURI_INTERNALS__ = {};
++    core.invoke.mockResolvedValue(undefined);
++  });
++  afterEach(() => {
++    delete w.__TAURI_INTERNALS__;
++    dialog.save.mockReset();
++    core.invoke.mockReset();
++  });
++
++  /** The path the shell was asked to write, from the invoke's percent-encoded header. */
++  const written = () => decodeURIComponent(core.invoke.mock.calls[0][2].headers["x-path"]);
++
++  it("a name chosen without the extension is saved with it, and the handle keeps that name", async () => {
++    dialog.save.mockResolvedValue("/home/me/cabinet");
++    const r = await saveFile("Untitled.shz", bytes, SHZ);
++    expect(dialog.save).toHaveBeenCalledWith({ defaultPath: "Untitled.shz", filters: [{ name: "Sawhorse document", extensions: ["shz"] }] });
++    expect(core.invoke).toHaveBeenCalledOnce();
++    expect(core.invoke.mock.calls[0][0]).toBe("save_file_atomic");
++    expect(core.invoke.mock.calls[0][1]).toBe(bytes);
++    expect(written()).toBe("/home/me/cabinet.shz");
++    expect(r).toEqual({ name: "cabinet.shz", handle: { kind: "tauri", path: "/home/me/cabinet.shz" } });
++  });
++
++  it("a name chosen with the extension is saved as it is", async () => {
++    dialog.save.mockResolvedValue("/home/me/Cabinet.SHZ");
++    const r = await saveFile("Untitled.shz", bytes, SHZ);
++    expect(written()).toBe("/home/me/Cabinet.SHZ");
++    expect(r?.name).toBe("Cabinet.SHZ");
++  });
++
++  it("a cancelled dialog saves nothing", async () => {
++    dialog.save.mockResolvedValue(null);
++    expect(await saveFile("Untitled.shz", bytes, SHZ)).toBeNull();
++    expect(core.invoke).not.toHaveBeenCalled();
++  });
++
++  it("saving again goes to the handle's path without a dialog", async () => {
++    const r = await saveFile("cabinet.shz", bytes, SHZ, { kind: "tauri", path: "/home/me/cabinet.shz" });
++    expect(dialog.save).not.toHaveBeenCalled();
++    expect(written()).toBe("/home/me/cabinet.shz");
++    expect(r?.name).toBe("cabinet.shz");
++  });
++});
+-- 
+2.43.0
+

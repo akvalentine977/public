@@ -1,0 +1,212 @@
+From b2c9a854cea93c3b7590da0d561e70d94229e2c6 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 5 Nov 2026 05:35:14 +0000
+Subject: [PATCH 3/3] feat(view): Back, Left and Bottom views on the View menu
+
+The README's "not yet" list had Back and Bottom. ViewId, VIEWS and
+VIEW_DIRS carry back (looking along -Y), left (along +X) and bottom
+(looking up +Z with +Y up the screen: the plan seen through the floor,
+so +X runs left), each a square parallel view framed like the others.
+They are on the View menu as "Back view", "Left view" and "Bottom
+view"; the top bar keeps the mock's five buttons (BAR_VIEWS), and a
+menu view lights none of them. The guide says where each view lives.
+
+Tests: camera.test.ts (the eight views and their projections, the
+bar's five, every direction, opposite pairs cancel, square views' up is
+square to their direction), navigation.spec.ts (each menu view sets
+data-view and a parallel projection with no bar button pressed).
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01DaoaGXWjtprTCuXM54m2KR
+---
+ CHANGELOG.md                |  4 ++++
+ README.md                   |  1 -
+ docs/USER-GUIDE.md          |  2 +-
+ e2e/navigation.spec.ts      | 11 +++++++++++
+ src/components/TopBar.tsx   |  4 ++--
+ src/viewport/camera.test.ts | 37 +++++++++++++++++++++----------------
+ src/viewport/camera.ts      | 15 +++++++++++++--
+ 7 files changed, 52 insertions(+), 22 deletions(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 104febc..d289bf9 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,10 @@ All notable changes to Sawhorse are recorded here. The format follows [Keep a Ch
+ 
+ ## [Unreleased]
+ 
++### Added (Back, Left and Bottom views, 2026-11-05)
++
++- **Back, Left and Bottom standard views**, on the View menu ("Back view", "Left view", "Bottom view"). Each is a square, parallel view framed like the others: Back looks along -Y, Left along +X, and Bottom looks up from below with +Y up the screen (the plan seen through the floor, so +X runs left). The top bar keeps its five buttons; a menu view lights none of them. `ViewId`, `VIEWS` and `VIEW_DIRS` in `src/viewport/camera.ts` carry the three, and `BAR_VIEWS` is the bar's five. The README's "not yet" list loses its Back and Bottom line.
++- Tests: `src/viewport/camera.test.ts` (the eight views, the bar's five, every direction, opposite pairs, up square to direction); `e2e/navigation.spec.ts` (each menu view sets the view and a parallel projection with no bar button pressed).
+ ### Fixed (Linux: a Save As name without its extension gets it, 2026-11-05)
+ 
+ - **A file saved without typing `.shz` is saved as `.shz`.** On Linux the desktop app's Save dialog (GTK's file chooser) hands the name back exactly as typed: `cabinet` stayed `cabinet`, a valid document the Open dialog's "Supported files" filter then hid. Windows and macOS add the filter's extension in the dialog itself, so only Linux saw it. A name without one of the type's extensions now gets the type's first (`cabinet` to `cabinet.shz`, `cabinet.v2` to `cabinet.v2.shz`, for exports too: `part` to `part.stl`; `Cabinet.SHZ` stays), and the shell accepts the path as the chosen one less its added extension, then allows it by its full name for the saves and reads that follow (`withExtension` in `src/io/files.ts`; `save_file_atomic` in `src-tauri/src/lib.rs`; `without_added_extension` in `sawhorse-safe-save`). Found on Linux (the 0.1.0-alpha.4 .deb) by scripting the app under Xvfb.
+diff --git a/README.md b/README.md
+index 6259017..39536c5 100644
+--- a/README.md
++++ b/README.md
+@@ -35,7 +35,6 @@ So nobody finds out the hard way:
+ - **`.skp` export** (you can open SketchUp files, not save them).
+ - **Fillet and chamfer** tools (Follow Me can route a chamfer).
+ - **Copy and paste in place**.
+-- **Back and Bottom views** (Top, Front, Right, Iso and perspective are there).
+ - **Text, and radius or diameter dimensions in the model** (linear dimensions only; drawing sheets have radius and diameter).
+ - **Weld Edges**: erasing the line that split a circle leaves two arcs.
+ - **Signed installers**: Windows and macOS warn before the first launch ([how to get past it](docs/releases/v0.1.0-alpha.4.md#unsigned-installers)).
+diff --git a/docs/USER-GUIDE.md b/docs/USER-GUIDE.md
+index 1c92296..af0b13f 100644
+--- a/docs/USER-GUIDE.md
++++ b/docs/USER-GUIDE.md
+@@ -41,7 +41,7 @@ The left button belongs to the tool you are using; the middle button, the right
+ - **Pan: right-drag, or Shift+middle-drag.** The point you grab stays under the cursor, at its own depth: in perspective, grab the near corner of a long board and the near corner follows the cursor exactly. Pressing or releasing Shift during a middle-drag switches between orbit and pan.
+ - **Zoom: the wheel.** It zooms toward the cursor: the point under the cursor stays put. On a trackpad, pinching zooms the same way.
+ - **Touch:** one finger orbits around the point under it; two fingers pan, and pinch to zoom around their midpoint.
+-- **Zoom Extents (Shift+Z)** frames the whole model; the **standard views** (Iso, Top, Front, Right, Persp) frame the model and the working area around the origin. **View > Perspective** switches between parallel and perspective projection without moving the view.
++- **Zoom Extents (Shift+Z)** frames the whole model; the **standard views** frame the model and the working area around the origin: Iso, Top, Front, Right and Persp on the top bar, and Back, Left and Bottom on the View menu (Bottom looks up from below with +Y up the screen, so +X runs left). **View > Perspective** switches between parallel and perspective projection without moving the view.
+ 
+ The view keeps a look-at point on the line of sight at the depth of whatever you last orbited, panned or zoomed toward. It is what the projection switch keeps the same size, what a scene saves with the camera, and what a sheet's viewport uses when it shows the 3D view's camera.
+ 
+diff --git a/e2e/navigation.spec.ts b/e2e/navigation.spec.ts
+index 7e9e34e..83222e3 100644
+--- a/e2e/navigation.spec.ts
++++ b/e2e/navigation.spec.ts
+@@ -129,6 +129,17 @@ test("Shift+Z zooms to the model's extents; views and the projection toggle", as
+     await expect(vp).toHaveAttribute("data-projection", id === "persp" ? "perspective" : "parallel");
+     await expect(page.getByRole("button", { name, exact: true })).toHaveAttribute("aria-pressed", "true");
+   }
++  // Back, Left and Bottom are on the View menu only: square, parallel views, no bar button lit.
++  for (const [label, id] of [["Back view", "back"], ["Left view", "left"], ["Bottom view", "bottom"]] as const) {
++    await page.getByRole("button", { name: "View", exact: true }).click();
++    await page.getByRole("menuitem", { name: label, exact: true }).click();
++    await expect(vp).toHaveAttribute("data-view", id);
++    await expect(vp).toHaveAttribute("data-projection", "parallel");
++    await expect(page.getByRole("group", { name: "Views" }).locator("button[aria-pressed='true']")).toHaveCount(0);
++  }
++  await page.getByRole("button", { name: "Iso", exact: true }).click();
++  await expect(vp).toHaveAttribute("data-view", "iso");
++
+   // View > Perspective toggles the projection and keeps the view direction.
+   const iso = await cam(page);
+   await page.getByRole("button", { name: "View", exact: true }).click();
+diff --git a/src/components/TopBar.tsx b/src/components/TopBar.tsx
+index 7b91133..191d20e 100644
+--- a/src/components/TopBar.tsx
++++ b/src/components/TopBar.tsx
+@@ -1,6 +1,6 @@
+ import { useEffect, useRef, useState } from "react";
+ import { BrandMark } from "./glyphs";
+-import { VIEWS, type ViewId } from "../viewport/camera";
++import { BAR_VIEWS, type ViewId } from "../viewport/camera";
+ 
+ // "Plugins" (lane 11) sits after Tools: commands from enabled plugins, and managing them.
+ const MENUS = ["File", "Edit", "View", "Draw", "Tools", "Plugins", "Window", "Help"];
+@@ -137,7 +137,7 @@ export function TopBar({ view, onView, credits, showCredits = true, creditsState
+       </nav>
+       <div className="spacer"></div>
+       <div className="views" role="group" aria-label="Views">
+-        {VIEWS.map((v) => (
++        {BAR_VIEWS.map((v) => (
+           <button key={v.id} type="button" title={v.title} aria-pressed={view === v.id} onClick={() => onView(v.id)}>
+             {v.label}
+           </button>
+diff --git a/src/viewport/camera.test.ts b/src/viewport/camera.test.ts
+index 0c33d92..05f3e18 100644
+--- a/src/viewport/camera.test.ts
++++ b/src/viewport/camera.test.ts
+@@ -1,29 +1,34 @@
+ import { describe, expect, it } from "vitest";
+-import {
+-  AXIS_COLORS,
+-  equivalentOrthoHalfHeight,
+-  equivalentPerspectiveDistance,
+-  gridHalfExtent,
+-  gridLines,
+-  gridSpec,
+-  gridVisibility,
+-  metresPerPixel,
+-  projectionForView,
+-  VIEW_DIRS,
+-  VIEWS,
+-} from "./camera";
++import { AXIS_COLORS, BAR_VIEWS, equivalentOrthoHalfHeight, equivalentPerspectiveDistance, gridHalfExtent, gridLines, gridSpec, gridVisibility, metresPerPixel, projectionForView, VIEW_DIRS, VIEWS } from "./camera";
+ import { M_PER_IN } from "../lib/units";
+ 
+ describe("standard views", () => {
+-  it("offers Iso, Top, Front, Right and Persp; only Persp is in perspective", () => {
+-    expect(VIEWS.map((v) => v.label)).toEqual(["Iso", "Top", "Front", "Right", "Persp"]);
+-    expect(VIEWS.map((v) => projectionForView(v.id))).toEqual(["parallel", "parallel", "parallel", "parallel", "perspective"]);
++  it("offers the six square views, Iso and Persp; only Persp is in perspective", () => {
++    expect(VIEWS.map((v) => v.label)).toEqual(["Iso", "Top", "Bottom", "Front", "Back", "Left", "Right", "Persp"]);
++    expect(VIEWS.map((v) => projectionForView(v.id))).toEqual(["parallel", "parallel", "parallel", "parallel", "parallel", "parallel", "parallel", "perspective"]);
++  });
++
++  it("keeps the mock's five on the top bar; Bottom, Back and Left are on the View menu", () => {
++    expect(BAR_VIEWS.map((v) => v.label)).toEqual(["Iso", "Top", "Front", "Right", "Persp"]);
++    expect(VIEWS.filter((v) => v.menuOnly).map((v) => v.id)).toEqual(["bottom", "back", "left"]);
+   });
+ 
+   it("looks from where each name says (Z up)", () => {
+     expect(VIEW_DIRS.top.dir).toEqual([0, 0, 1]);
++    expect(VIEW_DIRS.bottom.dir).toEqual([0, 0, -1]);
+     expect(VIEW_DIRS.front.dir).toEqual([0, -1, 0]);
++    expect(VIEW_DIRS.back.dir).toEqual([0, 1, 0]);
++    expect(VIEW_DIRS.left.dir).toEqual([-1, 0, 0]);
+     expect(VIEW_DIRS.right.dir).toEqual([1, 0, 0]);
++    // Opposite views look from opposite sides, and every up is square to its direction.
++    for (const [a, b] of [["top", "bottom"], ["front", "back"], ["left", "right"]] as const) {
++      for (let k = 0; k < 3; k++) expect(VIEW_DIRS[a].dir[k] + VIEW_DIRS[b].dir[k]).toBe(0);
++    }
++    // The square views' up is square to their direction (Iso and Persp only need an up that is not parallel).
++    for (const id of ["top", "bottom", "front", "back", "left", "right"] as const) {
++      const { dir, up } = VIEW_DIRS[id];
++      expect(dir[0] * up[0] + dir[1] * up[1] + dir[2] * up[2]).toBe(0);
++    }
+     const iso = VIEW_DIRS.iso.dir;
+     expect(iso[0]).toBeLessThan(0);
+     expect(iso[1]).toBeLessThan(0);
+diff --git a/src/viewport/camera.ts b/src/viewport/camera.ts
+index bf93568..04e3006 100644
+--- a/src/viewport/camera.ts
++++ b/src/viewport/camera.ts
+@@ -4,23 +4,34 @@ import type { UnitSystem } from "../lib/units";
+ import { M_PER_IN } from "../lib/units";
+ 
+ export type Vec3 = [number, number, number];
+-export type ViewId = "iso" | "top" | "front" | "right" | "persp";
++export type ViewId = "iso" | "top" | "bottom" | "front" | "back" | "left" | "right" | "persp";
+ export type Projection = "parallel" | "perspective";
+ 
+-export const VIEWS: { id: ViewId; label: string; title: string }[] = [
++/** The standard views, in the View menu's order. `menuOnly` ones have no button on the top bar. */
++export const VIEWS: { id: ViewId; label: string; title: string; menuOnly?: boolean }[] = [
+   { id: "iso", label: "Iso", title: "Isometric view (parallel projection)" },
+   { id: "top", label: "Top", title: "Top view, looking down -Z" },
++  { id: "bottom", label: "Bottom", title: "Bottom view, looking up +Z (+Y up the screen, so +X runs left)", menuOnly: true },
+   { id: "front", label: "Front", title: "Front view, looking along +Y" },
++  { id: "back", label: "Back", title: "Back view, looking along -Y", menuOnly: true },
++  { id: "left", label: "Left", title: "Left view, looking along +X", menuOnly: true },
+   { id: "right", label: "Right", title: "Right view, looking along -X" },
+   { id: "persp", label: "Persp", title: "Three-quarter perspective view" },
+ ];
+ 
++/** The views with a button on the top bar (the mock's five); the rest are on the View menu. */
++export const BAR_VIEWS = VIEWS.filter((v) => !v.menuOnly);
++
+ /** Camera direction (from the target toward the eye) and up vector per standard view. */
+ export const VIEW_DIRS: Record<ViewId, { dir: Vec3; up: Vec3 }> = {
+   // Isometric feel: eye in the -X/-Y/+Z octant so +X runs right and +Y recedes left, Z up.
+   iso: { dir: norm([-1, -1, 1]), up: [0, 0, 1] },
+   top: { dir: [0, 0, 1], up: [0, 1, 0] },
++  // From below, with +Y still up the screen: the plan seen through the floor, +X to the left.
++  bottom: { dir: [0, 0, -1], up: [0, 1, 0] },
+   front: { dir: [0, -1, 0], up: [0, 0, 1] },
++  back: { dir: [0, 1, 0], up: [0, 0, 1] },
++  left: { dir: [-1, 0, 0], up: [0, 0, 1] },
+   right: { dir: [1, 0, 0], up: [0, 0, 1] },
+   persp: { dir: norm([-0.9, -1.6, 1]), up: [0, 0, 1] },
+ };
+-- 
+2.43.0
+

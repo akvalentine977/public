@@ -75,5 +75,7 @@ updated; changelog entry under Unreleased.
 
 ## Note on changelog conflicts
 
+To try all three at once locally, apply `patches/stacked/*.patch` instead, where the overlap is already merged.
+
 All three add a section at the top of `## [Unreleased]` in `CHANGELOG.md`. Whichever merges second will
 conflict there; keep both sections, newest first.

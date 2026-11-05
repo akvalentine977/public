@@ -94,4 +94,41 @@ git push -u <your-fork> <branch>     # then open the pull request against sawhor
 | P1 | Desktop app waits for the "Discard the unsaved changes?" answer (bug-reports/02) | fix/desktop-discard-question | done: commit 20a858a, patches/0001; typecheck, vitest and e2e files.spec green; the new e2e test fails without the fix |
 | P2 | Save As appends the type's extension when the dialog returns none (bug-reports/01) | fix/save-as-extension | done: patches/0002; typecheck, vitest, safe-save tests, shell clippy and fmt green |
 | P3 | Back, Left and Bottom standard views | feat/back-left-bottom-views | done: patches/0003; typecheck, full vitest (789) and e2e navigation.spec green |
-| P4 | Issue #26, metric stock library and labels | | not started, only if time remains |
+| P4 | Issue #26, metric stock library and labels | | not started; hand-off notes below |
+
+### The three changes together
+
+`patches/stacked/0001..0003` are the same three commits rebased in sequence on `main` at `bf2c9f0`, with the
+one overlap (each adds a section at the top of `## [Unreleased]` in CHANGELOG.md) already merged, newest
+section first. On that stack every check passes on Linux: typecheck, vitest (798 tests, 9 of them new), the
+`sawhorse-safe-save` tests (5), `cargo clippy -D warnings` and `cargo fmt --check` on `src-tauri`, and the
+`files` and `navigation` e2e specs (10 tests, 2 new). Use the stacked series to try everything at once
+(`git am patches/stacked/*.patch`); use `patches/0001`, `0002`, `0003` for three separate pull-request
+branches off `main` (the maintainer will see a trivial changelog conflict on whichever merges second).
+
+### Hand-off for issue #26 (metric workshops), if you take it on
+
+Not started here because it needs design choices the maintainer should see first. What I found:
+
+- The status chip's volume is hard-coded to cubic inches: `src/App.tsx` around line 2397 formats
+  `s.volume_m3 / M_PER_IN ** 3` with "in³" whatever the units.
+- The starting stock library is `StockLibrary::builtin()` in `crates/kernel/src/stock.rs` (around line 341):
+  4 x 8 sheets and 4/4 to 12/4 boards, all imperial; nominal names like "4/4" are mapped at line ~216.
+- Nesting labels ("4/4 x 4 x 96", "Kerf 3.17 mm") and the cut-list tiles (board feet, 4 x 8 sheets) are
+  built from that library and from `crates/kernel/src/cutlist.rs` / `nesting.rs`; the panes are under
+  `src/cutlist/` and `src/nesting/`.
+- The reporter's spec (issue #26): dressed boards 19 x 42, 66, 90, 140, 190 mm in 0.3 m steps from 1.8 to
+  6.0 m; sheets 2400 x 1200 (also 1800 and 3600 long) in 3, 6, 7, 9, 12, 16, 18, 25 mm; labels and totals that
+  follow the unit setting; a warning when a part is placed on stock thinner than itself.
+- Open question to settle with the maintainer first: does a metric document get a metric starting library
+  (and how is "metric" decided: display units, or a per-document stock choice), given that thickness matching
+  is "within 1/16 in" and 18 mm and 3/4 in would both match a 19 mm part. ADR-0007 is the nesting decision
+  record to extend.
+
+### What is left for you
+
+1. Install the Claude GitHub App for `akvalentine977/sawhorse` (https://github.com/apps/claude/installations/select_target)
+   if you want a cloud session to push branches; or push them yourself from the patches.
+2. Open the three pull requests with the text in `pr-descriptions.md`, and file the two issues from
+   `bug-reports/` (PR 1 and PR 2 fix them; link each PR to its issue).
+3. Optionally take on #26 with the notes above.

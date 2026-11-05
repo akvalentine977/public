@@ -1,0 +1,264 @@
+From 20a858a6fdd5d0346c980394823fb81c67e123c7 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 5 Nov 2026 05:28:39 +0000
+Subject: [PATCH 1/3] fix(desktop): the discard question is waited for
+
+In the desktop app, File > Open and File > New threw away unsaved
+changes without asking. tauri-plugin-dialog replaces window.confirm
+with an asynchronous one, so the synchronous check saw a Promise
+(truthy) and went ahead; and the shell had never granted
+dialog:allow-message, so the plugin's dialog could not have shown.
+confirmDiscard is asynchronous now and awaited at its three call sites
+(Open, New, an empty SketchUp file opening as a new model). On the
+desktop it asks through the plugin (askYesNo in src/io/files.ts, with
+the app's name on the dialog); in the browser through window.confirm
+as before. capabilities/default.json grants dialog:allow-message.
+
+Tests: files.test.ts (the browser asks with window.confirm; the desktop
+asks through the plugin and waits), files.spec.ts (the desktop's
+asynchronous confirm stood in: Open and New over unsaved changes wait
+for No and keep the model, and go ahead on Yes; fails before this fix).
+
+Found on Linux (the 0.1.0-alpha.4 .deb and AppImage, and main) by
+scripting the app under Xvfb.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01DaoaGXWjtprTCuXM54m2KR
+---
+ CHANGELOG.md                        |  5 ++++
+ e2e/files.spec.ts                   | 45 ++++++++++++++++++++++++++++
+ src-tauri/capabilities/default.json |  3 +-
+ src/App.tsx                         | 11 +++----
+ src/io/files.test.ts                | 46 +++++++++++++++++++++++++++--
+ src/io/files.ts                     | 14 +++++++++
+ 6 files changed, 116 insertions(+), 8 deletions(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index fd5e0be..4df9ab5 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,11 @@ All notable changes to Sawhorse are recorded here. The format follows [Keep a Ch
+ 
+ ## [Unreleased]
+ 
++### Fixed (the desktop app waits for the discard question, 2026-11-05)
++
++- **The desktop app asks before throwing away unsaved changes.** In the Windows, macOS and Linux app, File > Open and File > New replaced a model that had unsaved changes at once, and "Discard the unsaved changes to this model?" was never seen. The dialog plugin gives the desktop's `window.confirm` back as a Promise (a yes whatever the answer, to code that does not wait), and the app did not wait; the shell had also never granted the plugin's message permission, so the dialog could not have shown. The question now goes through the dialog plugin on the desktop (`askYesNo` in `src/io/files.ts`, with the app's name on the dialog) and is awaited wherever it is asked: Open, New, and an empty SketchUp file opening as a new model. The browser build asks as before. `src-tauri/capabilities/default.json` grants `dialog:allow-message`. Found on Linux (the 0.1.0-alpha.4 .deb and AppImage, and `main`) by scripting the app under Xvfb.
++- Tests: vitest (`src/io/files.test.ts`: the browser asks with window.confirm; the desktop asks through the plugin and waits for the answer); `e2e/files.spec.ts` stands in the desktop's asynchronous confirm and checks that Open and New over unsaved changes wait for No and keep the model, and go ahead on Yes.
++
+ ### Fixed (lane 27, 2026-11-01)
+ 
+ - **A SketchUp import's curve note says what the model holds** ([#17](https://github.com/sawhorse3d/sawhorse/issues/17)). openskp's `gondola_v20.skp` said "16 curves came in as curves (8 arcs, 8 polylines)" while the model held 24 polylines and no arc: the note counted a component's curves once, for its definition, in the frame its items are built in, and its arcs sit in components placed with an uneven scale, which turns each copy's arcs into polylines only where it lands. The note now counts every placed copy as it lands, as the curves view does (the gondola: "24 curves came in as curves" and "16 circles or arcs in groups or components scaled unevenly came in as polylines"), and an uneven scale on a component's placement is said with a group's: "N circles or arcs in groups or components scaled unevenly came in as polylines". Five of the 35 real files tried said a different number than their curves view (Corynth's cupboard said 30 curves, 6 circles and 24 arcs, for a model holding 12 circles and 48 arcs); none does now.
+diff --git a/e2e/files.spec.ts b/e2e/files.spec.ts
+index 3cc15ff..6e11d6e 100644
+--- a/e2e/files.spec.ts
++++ b/e2e/files.spec.ts
+@@ -146,6 +146,51 @@ test("save as .shz, start a new model, open the file again", async ({ page }) =>
+   await expect(page.locator(".hud")).toContainText("undo 0");
+ });
+ 
++test("over unsaved changes, Open and New wait for the answer, even the desktop's asynchronous one", async ({ page }) => {
++  // The desktop app's dialog plugin replaces window.confirm with one that returns a Promise
++  // (truthy whatever the answer, to code that does not wait). The same stand-in here: it
++  // answers after a moment, No at first.
++  await page.addInitScript(() => {
++    const w = window as unknown as { confirm: (m: string) => unknown; __asked: string[]; __answer: boolean };
++    w.__asked = [];
++    w.__answer = false;
++    w.confirm = (m: string) => {
++      w.__asked.push(m);
++      return new Promise((r) => setTimeout(() => r(w.__answer), 150));
++    };
++  });
++  const asked = () => page.evaluate(() => (window as unknown as { __asked: string[] }).__asked);
++  const vp = await ready(page);
++  await pick(page, "parts.stl", stlBoxes([{ at: [0, 0, 0], size: [40, 40, 40] }]));
++  await expect(vp).toHaveAttribute("data-objects", "1");
++  const saved = await download(page, () => page.keyboard.press("Control+s"));
++  await expect(page).toHaveTitle("Untitled - Sawhorse");
++  // An import adds to the model: unsaved changes.
++  await pick(page, "more.stl", stlBoxes([{ at: [100, 0, 0], size: [20, 30, 10] }]));
++  await expect(vp).toHaveAttribute("data-objects", "2");
++  await expect(page).toHaveTitle("• Untitled - Sawhorse");
++
++  // Open over them: asked, and No keeps the model.
++  await pick(page, "parts.shz", saved.bytes);
++  await expect.poll(asked).toEqual(["Discard the unsaved changes to this model?"]);
++  await page.waitForTimeout(500);
++  await expect(vp).toHaveAttribute("data-objects", "2");
++  await expect(page).toHaveTitle("• Untitled - Sawhorse");
++
++  // New over them: asked, and No keeps the model.
++  await menu(page, "File", "New");
++  await expect.poll(async () => (await asked()).length).toBe(2);
++  await page.waitForTimeout(500);
++  await expect(vp).toHaveAttribute("data-objects", "2");
++
++  // Yes opens the file.
++  await page.evaluate(() => ((window as unknown as { __answer: boolean }).__answer = true));
++  await pick(page, "parts.shz", saved.bytes);
++  await expect(vp).toHaveAttribute("data-objects", "1");
++  await expect(page).toHaveTitle("parts - Sawhorse");
++  expect((await asked()).length).toBe(3);
++});
++
+ test("drag and drop: an SVG becomes sketch regions on the ground", async ({ page }) => {
+   const vp = await ready(page);
+   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100mm" height="100mm" viewBox="0 0 100 100"><rect x="10" y="10" width="50" height="30"/><circle cx="80" cy="70" r="10"/></svg>`;
+diff --git a/src-tauri/capabilities/default.json b/src-tauri/capabilities/default.json
+index 3a9631e..4c8de4f 100644
+--- a/src-tauri/capabilities/default.json
++++ b/src-tauri/capabilities/default.json
+@@ -1,12 +1,13 @@
+ {
+   "$schema": "../gen/schemas/desktop-schema.json",
+   "identifier": "default",
+-  "description": "Main window: core defaults; open/save dialogs; reading and writing files, limited to the paths the user picked in a dialog or dropped on the window (lane 6). The app's own commands (device_public_key, device_sign, open_external) are allowed by default; the opener plugin is driven from Rust, so no opener, shell or http permission is granted to the webview (lane 8). Plugins (lane 11): reading and writing under $APPDATA (installed plugins live in $APPDATA/plugins) and listing folders the user picked in a dialog (Load unpacked folder).",
++  "description": "Main window: core defaults; open/save dialogs and the plugin's message dialog (the question before unsaved changes are discarded: the plugin replaces window.confirm with an asynchronous one that needs it); reading and writing files, limited to the paths the user picked in a dialog or dropped on the window (lane 6). The app's own commands (device_public_key, device_sign, open_external) are allowed by default; the opener plugin is driven from Rust, so no opener, shell or http permission is granted to the webview (lane 8). Plugins (lane 11): reading and writing under $APPDATA (installed plugins live in $APPDATA/plugins) and listing folders the user picked in a dialog (Load unpacked folder).",
+   "windows": ["main"],
+   "permissions": [
+     "core:default",
+     "dialog:allow-open",
+     "dialog:allow-save",
++    "dialog:allow-message",
+     "fs:allow-read-file",
+     "fs:allow-write-file",
+     "fs:allow-read-dir",
+diff --git a/src/App.tsx b/src/App.tsx
+index 545ec7d..13a1f6d 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -56,7 +56,7 @@ import { InferenceMemory, kernelResolver, ToolDriver } from "./tools/driver";
+ import { friendlyError, setNameSource } from "./lib/names";
+ import { explodeOps } from "./lib/curves";
+ import { autosaveEnabled, clearAutosave, clearOffered, describeAutosave, loadOffered, logIsWorth, MAX_AUTOSAVE_BYTES, saveAutosave, takeAutosave, worthRestoring, type Autosave } from "./lib/autosave";
+-import { ALL_EXTENSIONS, IMPORT_TYPES, SHZ, extensionOf, onTauriDrop, pickFile, readBrowserFile, saveFile, stem, type FileHandle, type PickedFile } from "./io/files";
++import { ALL_EXTENSIONS, askYesNo, extensionOf, IMPORT_TYPES, onTauriDrop, pickFile, readBrowserFile, saveFile, SHZ, stem, type FileHandle, type PickedFile } from "./io/files";
+ import { EXPORTS, MTL_TYPE, textureType, type ExportChoice } from "./io/exports";
+ import type { ExportOptions, ImportUnit, OpOutcome } from "./kernel/types";
+ import { ImportReport, type Report } from "./components/ImportReport";
+@@ -595,7 +595,8 @@ export function App() {
+     document.title = `${dirty ? "• " : ""}${docName ? stem(docName) : "Untitled"} - Sawhorse`;
+   }, [dirty, docName]);
+ 
+-  const confirmDiscard = useCallback(() => !dirtyRef.current || window.confirm("Discard the unsaved changes to this model?"), []);
++  /** True when the model may be replaced: it has no unsaved changes, or the person says so. Awaited: the desktop's question is asynchronous. */
++  const confirmDiscard = useCallback(async () => (dirtyRef.current ? askYesNo("Discard the unsaved changes to this model?") : true), []);
+ 
+   /** Bring a file into the model as one undo step (`.skp` through openskp, the rest through the kernel's readers). */
+   const importBytes = useCallback(
+@@ -613,7 +614,7 @@ export function App() {
+           // Lane 15: an empty SketchUp file (a blank template) opens as an empty model in its
+           // own units and style, in place of the current one.
+           empty = res.empty;
+-          if (!confirmDiscard()) throw new Error(`${f.name} is an empty model; the current model was kept.`);
++          if (!(await confirmDiscard())) throw new Error(`${f.name} is an empty model; the current model was kept.`);
+           let n = await k.newDocument();
+           const face = res.empty.style?.face;
+           if (face) n = await k.apply({ op: "set_style", style: { face } } as KernelOp);
+@@ -653,7 +654,7 @@ export function App() {
+   /** Open a .shz in place of the current model. */
+   const openBytes = useCallback(
+     async (f: PickedFile) => {
+-      if (!confirmDiscard()) return;
++      if (!(await confirmDiscard())) return;
+       setMessage({ text: `Opening ${f.name}…`, error: false, actions: [{ label: "Cancel", run: () => void kernelRef.current?.cancel("cancelled by you") }] });
+       let info: { notes: string[]; opened: { display_units: string | null } } | null = null;
+       const r = await run(
+@@ -723,7 +724,7 @@ export function App() {
+   );
+ 
+   const newDocument = useCallback(async () => {
+-    if (!confirmDiscard()) return;
++    if (!(await confirmDiscard())) return;
+     const r = await run((k) => k.newDocument(), null, () => "New model.");
+     if (r) {
+       pluginsRef.current?.documentOpened(null);
+diff --git a/src/io/files.test.ts b/src/io/files.test.ts
+index 66b6d69..4ca4519 100644
+--- a/src/io/files.test.ts
++++ b/src/io/files.test.ts
+@@ -1,7 +1,10 @@
+ // Lane 16 (C6): a file is measured before it is read. A dropped or chosen file over its
+ // limit is refused by its size, without its bytes ever being read.
+-import { describe, expect, it, vi } from "vitest";
+-import { checkSize, FileTooLarge, MAX_READ_BYTES, readBrowserFile, readLimit } from "./files";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { askYesNo, checkSize, FileTooLarge, MAX_READ_BYTES, readBrowserFile, readLimit } from "./files";
++
++const dialog = vi.hoisted(() => ({ confirm: vi.fn<(message: string, options?: object) => Promise<boolean>>() }));
++vi.mock("@tauri-apps/plugin-dialog", () => dialog);
+ 
+ /** A File that says it is `size` bytes and fails the test if it is read. */
+ function claimed(name: string, size: number) {
+@@ -38,3 +41,42 @@ describe("reading files", () => {
+     expect(() => checkSize("small.zip", 1024)).not.toThrow();
+   });
+ });
++
++// The desktop's dialog plugin replaces window.confirm with an asynchronous one: a Promise,
++// truthy whatever the answer, to code that does not wait. The question is asked where each
++// host answers it, and awaited.
++describe("asking before discarding", () => {
++  const w = window as unknown as Record<string, unknown>;
++  afterEach(() => {
++    delete w.__TAURI_INTERNALS__;
++    dialog.confirm.mockReset();
++  });
++
++  it("in the browser it is window.confirm, answered at once", async () => {
++    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
++    await expect(askYesNo("Discard the unsaved changes to this model?")).resolves.toBe(false);
++    expect(confirm).toHaveBeenCalledWith("Discard the unsaved changes to this model?");
++    confirm.mockReturnValue(true);
++    await expect(askYesNo("Again?")).resolves.toBe(true);
++    confirm.mockRestore();
++    expect(dialog.confirm).not.toHaveBeenCalled();
++  });
++
++  it("in the desktop app it is the dialog plugin's question, with the app's name, waited for", async () => {
++    w.__TAURI_INTERNALS__ = {};
++    const confirm = vi.spyOn(window, "confirm");
++    let answer: ((yes: boolean) => void) | null = null;
++    dialog.confirm.mockImplementation(() => new Promise<boolean>((r) => (answer = r)));
++    const asked = askYesNo("Discard the unsaved changes to this model?");
++    let settled = false;
++    void asked.then(() => (settled = true));
++    // The plugin is loaded on demand, so the question reaches it a few ticks later.
++    await vi.waitFor(() => expect(dialog.confirm).toHaveBeenCalledWith("Discard the unsaved changes to this model?", expect.objectContaining({ title: "Sawhorse" })));
++    await new Promise((r) => setTimeout(r, 20));
++    expect(settled).toBe(false);
++    answer!(false);
++    await expect(asked).resolves.toBe(false);
++    expect(confirm).not.toHaveBeenCalled();
++    confirm.mockRestore();
++  });
++});
+diff --git a/src/io/files.ts b/src/io/files.ts
+index a05a134..1ad2725 100644
+--- a/src/io/files.ts
++++ b/src/io/files.ts
+@@ -92,6 +92,20 @@ export function isTauri(): boolean {
+   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+ }
+ 
++/**
++ * Ask a yes/no question and wait for the answer. In the browser that is `window.confirm`. In
++ * the desktop app the dialog plugin replaces `window.confirm` with an asynchronous one that
++ * hands back a Promise (truthy whatever the answer, to code that does not wait), so there the
++ * question goes through the plugin's own dialog, with the app's name on it, and is awaited.
++ */
++export async function askYesNo(message: string): Promise<boolean> {
++  if (isTauri()) {
++    const { confirm } = await import("@tauri-apps/plugin-dialog");
++    return confirm(message, { title: "Sawhorse", kind: "warning" });
++  }
++  return window.confirm(message);
++}
++
+ interface FsaWritable {
+   write(data: BufferSource | Blob): Promise<void>;
+   close(): Promise<void>;
+-- 
+2.43.0
+
